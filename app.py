@@ -4,10 +4,12 @@ from database import obter_conexao
 from modelos import User
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 import sqlite3
+import datetime
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///livros.db'
 app.secret_key = 'ablublublu'
 login_manager.init_app(app)
 
@@ -18,35 +20,29 @@ def load_user(user_id):
 app = Flask(__name__)
 app.secret_key = "SENHASUPERSECRETAUAAAAU"
 
-# Formato: "mysql://USUARIO:SENHA@HOST:PORTA/NOME_DO_BANCO"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:SUASENHA@localhost:3306/db_trabalho3B'
-
-db = SQLAlchemy(app)
-
 @login_required
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/cadastro')
+@app.route('/cadastro', methods=["GET", "POST"])
 def cadastro():
     if request.method == 'POST':
         nome = request.form['nome']
         email = request.form['email'] 
         senha = request.form['senha']
+        numero_telefone = request.form['numero_telefone']
+        data_inscricao = datetime.date.today()
 
         conexao = obter_conexao()
         sql = "SELECT * FROM usuarios WHERE email = ?"
         resultado = conexao.execute(sql, (email,) ).fetchone()
 
         if not resultado:
-            sql = "INSERT INTO usuarios() VALUES(?,?,?,?)"
-            conexao.execute(sql, (email, nome))
-            conexao.commit()
-            conexao.close()
+            User.add_usuario(email=email, senha=senha, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
 
             # login do usuário
-            user = User(email=email, nome=nome, senha=senha)
+            user = User(email=email, senha=senha, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
             user.id = email
             login_user(user)
 
@@ -75,7 +71,7 @@ def login():
 
     return render_template('login.html')
 
-
+'''
 @app.route('/logout', methods=["POST", "GET"])
 def logout():
     logout_user()
@@ -86,5 +82,8 @@ def logout():
 def criar_livros():
     if request.method == 'POST':
         nome = request.form['nome']
-        pass
+'''
 
+
+if __name__ == '__main__':
+    app.run(debug=True)
