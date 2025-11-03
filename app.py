@@ -86,3 +86,5 @@ def logout():
 def criar_livros():
     if request.method == 'POST':
         nome = request.form['nome']
+        pass
+
