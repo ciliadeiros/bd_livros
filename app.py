@@ -15,12 +15,8 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.achar_email(user_id)
 
-app = Flask(__name__)
-app.secret_key = "SENHASUPERSECRETAUAAAAU"
-
-@login_required
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -39,10 +35,11 @@ def cadastro():
         resultado = conexao.execute(sql, (email,) ).fetchone()
 
         if not resultado:
-            User.add_usuario(email=email, senha=senha, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
+            novo_usuario = User(senha=senha, nome=nome, email=email, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
+            novo_usuario.add_usuario()
 
             # login do usuário
-            user = User(email=email, senha=senha, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
+            user = User(senha=senha, nome=nome, email=email, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
             user.id = email
             login_user(user)
 
@@ -62,27 +59,47 @@ def login():
 
         usuario = User.selecionar_usuario(email)
 
-        login_user(usuario)
-        flash('Login feito com sucesso!', category='success')
-        return redirect(url_for('livros'))
+        if usuario and usuario.senha==senha:
+            login_user(usuario)
+            flash('Login feito com sucesso!', category='success')
+            return redirect(url_for('livros'))    
+        else:
+            flash('Opa, você não tem cadastro. Entre na página de cadastro e se registre!', category='error')
+
     else:
-        flash('Usuário ou senha incorretos. Tente novamente :/', category='error')
-        return redirect(url_for('login'))
-
-    return render_template('login.html')
-
-'''
+        return render_template('login.html')
+    
 @app.route('/logout', methods=["POST", "GET"])
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/livros', methods=["GET", "POST"])
+def livros():
+    return render_template('livros.html')
 
 @app.route('/criar_livros', methods=["GET","POST"])
 def criar_livros():
     if request.method == 'POST':
-        nome = request.form['nome']
-'''
+        titulo = request.form['titulo']
+        autor = request.form['autor']
+        isbn = request.form['isbn']
+        ano_publicacao = request.form['ano_publicacao']
+        genero = request.form['genero']
+        editora = request.form['editora']
+        quantidade_disponivel = request.form['quantidade_disponivel']
+        resumo = request.form['resumo']
+
+        conexao = obter_conexao()
+        sql = """INSERT INTO livros (titulo, autor, isbn, ano_publicacao, genero, editora, quantidade_disponivel, resumo)
+        VALUES(?,?,?,?,?,?,?,?)"""
+        conexao.execute(sql, (titulo,autor,isbn,ano_publicacao,genero,editora,quantidade_disponivel,resumo))
+        conexao.commit()
+        conexao.close()
+        return redirect(url_for('livros'))
+    else:
+        return render_template('criar_livros.html')
+    
 
 
 if __name__ == '__main__':
