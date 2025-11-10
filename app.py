@@ -76,24 +76,27 @@ def logout():
 
 @app.route('/livros', methods=["GET", "POST"])
 def livros():
-    return render_template('livros.html')
+    conexao = obter_conexao()
+    livros = conexao.execute('SELECT * FROM livros').fetchall()
+    conexao.close()
+    return render_template('livros.html', livros=livros)
 
 @app.route('/criar_livros', methods=["GET","POST"])
 def criar_livros():
     if request.method == 'POST':
         titulo = request.form['titulo']
-        autor = request.form['autor']
+        autor_id = request.form['autor_id']
         isbn = request.form['isbn']
         ano_publicacao = request.form['ano_publicacao']
-        genero = request.form['genero']
-        editora = request.form['editora']
+        genero_id = request.form['genero_id']
+        editora_id = request.form['editora_id']
         quantidade_disponivel = request.form['quantidade_disponivel']
         resumo = request.form['resumo']
 
         conexao = obter_conexao()
-        sql = """INSERT INTO livros (titulo, autor, isbn, ano_publicacao, genero, editora, quantidade_disponivel, resumo)
+        sql = """INSERT INTO livros (titulo, autor_id, isbn, ano_publicacao, genero_id, editora_id, quantidade_disponivel, resumo)
         VALUES(?,?,?,?,?,?,?,?)"""
-        conexao.execute(sql, (titulo,autor,isbn,ano_publicacao,genero,editora,quantidade_disponivel,resumo))
+        conexao.execute(sql, (titulo,autor_id,isbn,ano_publicacao,genero_id,editora_id,quantidade_disponivel,resumo))
         conexao.commit()
         conexao.close()
         return redirect(url_for('livros'))
@@ -119,6 +122,16 @@ def editar_livros():
         return redirect(url_for('livros'))
     else:
         return render_template('editar_livros.html')
+
+@app.route('/remover_livro', methods=['POST'])
+def remover_livro():
+    id_livro = request.form['id']
+    conexao = obter_conexao()
+    conexao.execute('DELETE FROM livros WHERE id_livro = ?', (id_livro,))
+    conexao.commit()
+    conexao.close()
+    return redirect(url_for('livros'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -22,7 +22,7 @@
                     <button type="submit">Remover</button>
                     </form>
                 </a>
-                <a href="{{ url_for('editar_livro', id=livro.id_livro) }}"><button type="button">Editar</button></a>
+                <a href="{{ url_for('editar_livros', id=livro.id_livro) }}"><button type="button">Editar</button></a>
             </td>
         </tr>
         {% endfor %}
