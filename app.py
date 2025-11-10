@@ -99,8 +99,26 @@ def criar_livros():
         return redirect(url_for('livros'))
     else:
         return render_template('criar_livros.html')
-    
 
+@app.route('/editar_livros', methods=["GET","POST"])
+def editar_livros():
+    if request.method == "POST":
+        n_titulo = request.form['titulo']
+        n_autor = request.form['autor']
+        n_isbn = request.form['isbn']
+        n_ano_publicacao = request.form['ano_publicacao']
+        n_genero = request.form['genero']
+        n_editora = request.form['editora']
+        n_quantidade_disponivel = request.form['quantidade_disponivel']
+        n_resumo = request.form['resumo']
+        conexao = obter_conexao()
+        sql = """UPDATE livros (titulo, autor, isbn, ano_publicacao, genero, editora, quantidade_disponivel, resumo) WHERE id_livro = ?
+        VALUES(?,?,?,?,?,?,?,?)"""
+        conexao.execute(sql,(n_titulo,n_autor,n_isbn,n_ano_publicacao,n_genero,n_editora,n_quantidade_disponivel,n_resumo))
+        conexao.close()
+        return redirect(url_for('livros'))
+    else:
+        return render_template('editar_livros.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
