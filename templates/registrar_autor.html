@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block titulo %} Cadastro {% endblock %}
+
+{% block conteudo %}
+<form action="" method="post">
+    Nome: <input type="text" name="nome">
+    Nacionalidade: <input type="text" name="nacionalidade">
+    Data de nascimento: <input type="date" name="data_nascimento">
+    Biografia: <input type="text" name="biografia">
+    <button type="submit">Enviar</button>
+</form>
+
+
+{% endblock %}

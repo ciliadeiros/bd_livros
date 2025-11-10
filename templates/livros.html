@@ -7,14 +7,26 @@
     {% if livros %}
     <table border="1">
         <tr>
-            <th>Nome</th>
+            <th>Título</th>
             <th>Resumo</th>
-            <th></th>
+            <th>Gênero</th>
+            <th>Autor</th>
+            <th>Editora</th>
+            <th>Ano de Publicação</th>
+            <th>Quantidade Disponível</th>
+            <th>ISBN</th>
+
         </tr>
         {% for livro in livros %}
         <tr>
-            <td>{{ livro.titulo }}</td>
-            <td>{{ livro.resumo }}</td>
+            <td style="width: 10%;">{{ livro.titulo }}</td>
+            <td style="width: 30%;">{{ livro.resumo }}</td>
+            <td>{{ livro.genero }}</td>
+            <td>{{ livro.autor }}</td>
+            <td>{{ livro.editora }}</td>
+            <td>{{ livro.ano_publicacao }}</td>
+            <td>{{ livro.quantidade_disponivel }}</td>
+            <td>{{ livro.isbn }}</td>
             <td>
                 <a>
                     <form action="{{ url_for('remover_livro') }}" method="post" style="display:inline;">

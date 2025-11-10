@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
-
 {% block titulo %} Cadastro {% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">{% endblock %}
 
 {% block conteudo %}
+<div class="container">
 <form action="" method="post">
+    <h1>✏️📄 Cadastre-se!</h1>
     Nome: <input type="text" name="nome">
     Email: <input type="email" name="email">
     Senha: <input type="password" name="senha">
     Numero de Telefone: <input type="text" name="numero_telefone">
-    <input type="submit" value="Enviar">
+    <p class="link_login">Já possui uma conta? Clique aqui e faça <a href="{{url_for('login')}}">LOGIN!</a></p>
+    <button type="submit">CONFIRMAR</button>
 </form>
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
 {% endblock %}
