@@ -1,0 +1,80 @@
+/* ===== Barra de navegação ===== */
+nav {
+    background-color: #add8e6; /* azul claro */
+    padding: 15px 0;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: fixed; /* fixa no topo */
+    top: 0;
+    left: 0;
+    width: 100%; /* ocupa toda a largura */
+    z-index: 1000;
+}
+
+/* ===== Links ===== */
+nav a {
+    color: #000;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    transition: 0.2s;
+}
+
+nav a:hover {
+    text-decoration: underline;
+    color: #003366;
+}
+
+/* ===== Corpo da página ===== */
+body {
+    background-color: #f2f5f8;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding-top: 80px; /* espaço para a barra fixa */
+}
+
+/* ===== Conteúdo principal ===== */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: #333;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+table th {
+  background-color: #e9ecef;
+}
+
+button{
+  background-color: #4e73df;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover{
+  background-color: #2e59d9;
+}
+
+
+

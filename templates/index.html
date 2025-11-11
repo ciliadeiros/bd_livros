@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
-
-{% block titulo %} Home {% endblock %}
-
+{% block titulo %} Início {% endblock %}
 {% block conteudo %}
-
+<h1>Seja bem-vindo!</h1>
+<p></p><a href="{{ url_for('login') }}">👤 Login</a></p>
+<p></p><a href="{{ url_for('cadastro') }}">👤 Cadastro</a></p>
+<p></p><a href="{{ url_for('livros') }}">📚 Lista de Livros</a></p>
+<p></p><a href="{{ url_for('criar_livro') }}">📚 Criar Livros</a></p>
+<p></p><a href="{{ url_for('autores') }}">🧑✏️ Lista de Autores</a></p>
+<p></p><a href="{{ url_for('registrar_autor') }}">🧑✏️ Registrar Autores</a></p>
+<p></p><a href="{{ url_for('emprestimo') }}">🤲📖 Registrar Emprestimo</a></p>
 {% endblock %}

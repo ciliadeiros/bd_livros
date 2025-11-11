@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block titulo %}Lista de Empréstimos{% endblock %}
+{% block conteudo %}
+
+<h1>📚 Empréstimos Registrados</h1>
+
+{% if lista_emprestimos %}
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuário</th>
+            <th>Livro</th>
+            <th>Data do Empréstimo</th>
+            <th>Devolução Prevista</th>
+            <th>Devolução Real</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for emprestimo in lista_emprestimos %}
+        <tr>
+            <td>{{ emprestimo.id_emprestimo }}</td>
+            <td>{{ emprestimo.nome_usuario }}</td>
+            <td>{{ emprestimo.titulo }}</td>
+            <td>{{ emprestimo.data_emprestimo }}</td>
+            <td>{{ emprestimo.data_devolucao_prevista }}</td>
+            <td>{{ emprestimo.data_devolucao_real if emprestimo.data_devolucao_real else '-' }}</td>
+            <td>{{ emprestimo.status_emprestimo }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Não há empréstimos registrados no momento.</p>
+{% endif %}
+
+<br>
+<a href="{{ url_for('emprestimo') }}">Registrar novo empréstimo</a>
+
+{% endblock %}

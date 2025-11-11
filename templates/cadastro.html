@@ -5,12 +5,12 @@
 {% block conteudo %}
 <div class="container">
 <form action="" method="post">
-    <h1>✏️📄 Cadastre-se!</h1>
-    Nome: <input type="text" name="nome">
-    Email: <input type="email" name="email">
-    Senha: <input type="password" name="senha">
-    Numero de Telefone: <input type="text" name="numero_telefone">
-    <p class="link_login">Já possui uma conta? Clique aqui e faça <a href="{{url_for('login')}}">LOGIN!</a></p>
+    <h1>👤 Cadastre-se!</h1>
+    Nome: <input type="text" name="nome"><br>
+    Email: <input type="email" name="email"><br>
+    Senha: <input type="password" name="senha"><br>
+    Numero de Telefone: <input type="text" name="numero_telefone"><br>
+    <p class="link_login">Já possui uma conta? Clique aqui e faça <a href="{{url_for('login')}}">LOGIN!</a></p><br>
     <button type="submit">CONFIRMAR</button>
 </form>
     {% with mensagens = get_flashed_messages(with_categories=true) %}

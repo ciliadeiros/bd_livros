@@ -55,3 +55,4 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario),
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro)
 );
+

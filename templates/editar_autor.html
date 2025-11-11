@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block titulo %}Editar Autor{% endblock %}
+{% block conteudo %}
+
+<h1>🧑✏️ Editar Autor</h1>
+
+<form method="POST" action="{{ url_for('editar_autor') }}">
+    {% if autor %}
+    <input type="hidden" name="id_autor" value="{{ autor['id_autor'] }}">
+    Nome: <input type="text" name="nome" value="{{ autor['nome_autor'] }}" required><br>
+    Nacionalidade: <input type="text" name="nacionalidade" value="{{ autor['nacionalidade'] }}" required><br>
+    Data de nascimento: <input type="date" name="data_nascimento" value="{{ autor['data_nascimento'] }}"><br>
+    Biografia: <input type="text" name="biografia" value="{{ autor['biografia'] }}"><br>
+    <button type="submit">Salvar</button>
+    {% else %}
+        <p>Nenhum autor encontrado.</p>
+    {% endif %}
+    <a href="{{ url_for('autores') }}">Cancelar</a>
+</form>
+
+{% endblock %}

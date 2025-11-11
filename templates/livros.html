@@ -3,7 +3,7 @@
 {% block titulo %} Livros {% endblock %}
 
 {% block conteudo %}
-    <h1>Livros</h1>
+    <h1>📚 Livros</h1>
     {% if livros %}
     <table border="1">
         <tr>
@@ -34,7 +34,7 @@
                     <button type="submit">Remover</button>
                     </form>
                 </a>
-                <a href="{{ url_for('editar_livros', id=livro.id_livro) }}"><button type="button">Editar</button></a>
+                <a href="{{ url_for('editar_livro', id=livro.id_livro) }}"><button type="button">Editar</button></a>
             </td>
         </tr>
         {% endfor %}
@@ -42,5 +42,5 @@
     {% else %}
         <p>Nenhum livro cadastrado.</p>
     {% endif %}
-    <a href="{{url_for('criar_livros')}}">Adicionar livro</a>
+    <a href="{{url_for('criar_livro')}}">Adicionar livro</a>
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block titulo %} autores {% endblock %}
 
 {% block conteudo %}
-    <h1>autores</h1>
+    <h1>🧑✏️ Autores</h1>
     {% if autores %}
     <table border="1">
         <tr>
@@ -11,7 +11,7 @@
             <th>Biografia</th>
             <th></th>
         </tr>
-        {% for livro in autores %}
+        {% for autor in autores %}
         <tr>
             <td>{{ autor.nome }}</td>
             <td>{{ autor.biografia }}</td>
@@ -19,18 +19,18 @@
             <td>{{ autor.data_nascimento }}</td>
             <td>
                 <a>
-                    <form action="{{ url_for('remover_autor') }}" method="post" style="display:inline;">
+                    <form action="{{ url_for('remover_autor', id = autor.id_autor) }}" method="post" style="display:inline;">
                     <input type="hidden" name="id" value="{{ autores.id_autor }}">
                     <button type="submit">Remover</button>
                     </form>
                 </a>
-                <a href="{{ url_for('editar_autores', id=autores.id_autor) }}"><button type="button">Editar</button></a>
+                <a href="{{ url_for('editar_autor', id = autor.id_autor) }}"><button type="button">Editar</button></a>
             </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-        <p>Nenhum livro cadastrado.</p>
+        <p>Nenhum autor cadastrado.</p>
     {% endif %}
-    <a href="{{url_for('registrar_autor')}}">Adicionar livro</a>
+    <a href="{{url_for('registrar_autor')}}">Registrar Autor</a>
 {% endblock %}
