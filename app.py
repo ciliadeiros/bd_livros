@@ -9,7 +9,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 login_manager = LoginManager()
-login_manager.loginovo_view = 'login'
+login_manager.login_view = 'login'
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///livros.db'
 app.secret_key = 'ablublublu'
@@ -98,6 +98,7 @@ def registrar_autor():
     return render_template('registrar_autor.html')
 
 @app.route('/autores', methods=["GET","POST"])
+@login_required
 def autores():
     conexao = obter_conexao()
     autores = conexao.execute('SELECT * FROM autores').fetchall()
@@ -122,7 +123,7 @@ def editar_autor():
         conexao.execute(sql, (novo_nome, novo_nacionalidade, novo_data_nascimento, nova_biografia, id_autor))
         conexao.commit()
         conexao.close()
-        flash('Autor atualizado com sucesso!', 'success')
+        flash('Autor atualizado com sucesso!', category='success')
         return redirect(url_for('autores'))
 
     else:
@@ -138,15 +139,21 @@ def editar_autor():
 def remover_autor(id):
     conexao = obter_conexao()
 
-    sql = """
-        DELETE FROM autores
-        WHERE id_autor = ?
-        AND id_autor NOT IN (SELECT autor_id FROM livros)
-    """
-    conexao.execute(sql, (id,))
+    try:
+        sql = """
+            DELETE FROM autores
+            WHERE id_autor = ?
+        """
+        conexao.execute(sql, (id,))
+        conexao.commit()
+        flash("Autor removido com sucesso!", category="success")
 
-    conexao.commit()
-    conexao.close()
+    except:
+        print('Except')
+        flash("Não é possível excluir este autor, pois ele está vinculado a um livro.", category="error")
+
+    finally:
+        conexao.close()
 
     return redirect(url_for('autores'))
 

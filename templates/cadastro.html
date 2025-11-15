@@ -4,6 +4,13 @@
 
 {% block conteudo %}
 <div class="container">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
 <form action="" method="post">
     <h1>👤 Cadastre-se!</h1>
     Nome: <input type="text" name="nome"><br>
@@ -13,12 +20,5 @@
     <p class="link_login">Já possui uma conta? Clique aqui e faça <a href="{{url_for('login')}}">LOGIN!</a></p><br>
     <button type="submit">CONFIRMAR</button>
 </form>
-    {% with mensagens = get_flashed_messages(with_categories=true) %}
-    {% if mensagens %}
-        {% for categoria, mensagem in mensagens %}
-          <p class="{{ categoria }}">{{ mensagem }}</p>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
 </div>
 {% endblock %}

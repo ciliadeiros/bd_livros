@@ -3,6 +3,13 @@
 {% block titulo %} autores {% endblock %}
 
 {% block conteudo %}
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
     <h1>🧑✏️ Autores</h1>
     {% if autores %}
     <table border="1">

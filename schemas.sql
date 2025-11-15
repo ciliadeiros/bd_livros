@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS livros (
     editora_id INTEGER,
     quantidade_disponivel INTEGER,
     resumo TEXT,
-    FOREIGN KEY (autor_id) REFERENCES autores(id_autor),
+    FOREIGN KEY (autor_id) REFERENCES autores(id_autor) ON DELETE RESTRICT,
     FOREIGN KEY (genero_id) REFERENCES generos(id_genero),
     FOREIGN KEY (editora_id) REFERENCES editoras(id_editora)
 );
