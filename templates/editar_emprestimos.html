@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block titulo %}Editar Empréstimo{% endblock %}
+{% block conteudo %}
+
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+            <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<h1>📖 Editar Empréstimo</h1>
+
+<form method="POST" action="{{ url_for('editar_emprestimos', id_emprestimo=emprestimo.id_emprestimo) }}">
+
+    <!-- Usuário (não pode ser alterado) -->
+    <label>Usuário:</label>
+    <input type="text" value="{{ emprestimo.nome_usuario if emprestimo.nome_usuario else '' }}" disabled>
+    <br>
+
+    <!-- Livro -->
+    <label>Livro:</label>
+    <select name="livro_id" required>
+        {% for livro in livros %}
+            <option value="{{ livro.id_livro }}"
+                {% if livro.id_livro == emprestimo.livro_id %}selected{% endif %}>
+                {{ livro.titulo }}
+            </option>
+        {% endfor %}
+    </select>
+    <br>
+
+    <!-- Data do empréstimo -->
+    <label>Data do Empréstimo:</label>
+    <input type="date" name="data_emprestimo"
+           value="{{ emprestimo.data_emprestimo[:10] }}" required>
+    <br>
+
+    <!-- Data prevista (somente exibição) -->
+    <label>Devolução Prevista:</label>
+    <input type="text" value="{{ emprestimo.data_devolucao_prevista[:10] }}" disabled>
+    <br>
+
+    <!-- Data real da devolução (somente exibição) -->
+    <label>Devolução Real:</label>
+    <input type="text" value="{{ emprestimo.data_devolucao_real[:10] if emprestimo.data_devolucao_real else '' }}" disabled>
+    <br>
+
+    <!-- Status (somente exibição) -->
+    <label>Status:</label>
+    <input type="text" value="{{ emprestimo.status_emprestimo }}" disabled>
+    <br><br>
+    
+    <button type="submit">Salvar</button>
+    <a href="{{ url_for('ver_emprestimos') }}">Cancelar</a>
+
+</form>
+
+{% endblock %}

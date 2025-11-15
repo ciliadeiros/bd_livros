@@ -53,6 +53,6 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     data_devolucao_real DATE,
     status_emprestimo TEXT CHECK(status_emprestimo IN ('pendente', 'devolvido', 'atrasado')),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario),
-    FOREIGN KEY (livro_id) REFERENCES livros(id_livro)
+    FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
 );
 

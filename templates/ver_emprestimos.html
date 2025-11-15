@@ -33,6 +33,10 @@
             <td>{{ emprestimo.data_devolucao_prevista }}</td>
             <td>{{ emprestimo.data_devolucao_real if emprestimo.data_devolucao_real else '-' }}</td>
             <td>{{ emprestimo.status_emprestimo }}</td>
+            <td>
+                <a href="{{ url_for('editar_emprestimos', id_emprestimo=emprestimo.id_emprestimo) }}"><button type="button">Editar</button></a>
+            </td>
+            
         </tr>
         {% endfor %}
     </tbody>
