@@ -9,7 +9,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 login_manager = LoginManager()
-login_manager.login_view = 'login' #type: ignore
+login_manager.login_view = 'login'
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///livros.db'
 app.secret_key = 'ablublublu'
@@ -78,6 +78,76 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/registrar_genero', methods=["GET", "POST"])
+@login_required
+def registrar_genero():
+    if request.method == "POST":
+        nome_genero = request.form['nome']
+    
+        conexao = obter_conexao()
+        sql = """INSERT INTO generos (nome_genero) VALUES (?)"""
+        conexao.execute(sql, (nome_genero,))
+        conexao.commit()
+        conexao.close() 
+        return redirect(url_for('generos'))
+
+    return render_template('registrar_genero.html')
+
+@app.route('/generos', methods=["GET","POST"])
+@login_required
+def generos():
+    conexao = obter_conexao()
+    generos = conexao.execute('SELECT * FROM generos').fetchall()
+    conexao.close()
+    return render_template('generos.html',generos=generos)
+
+@app.route('/editar_genero', methods=["GET", "POST"])
+@login_required
+def editar_genero():
+    conexao = obter_conexao()
+
+    if request.method == "POST":
+        id_genero = request.form['id_genero']
+        novo_nome_genero = request.form['nome']
+
+        sql = "UPDATE generos SET nome_genero = ? WHERE id_genero = ?"
+        conexao.execute(sql, (novo_nome_genero,id_genero))
+        conexao.commit()
+        conexao.close()
+        flash('Gênero atualizado com sucesso!', category='success')
+        return redirect(url_for('generos'))
+
+    else:
+        id_genero = request.args.get('id') 
+        cursor = conexao.execute("SELECT * FROM generos WHERE id_genero = ?", (id_genero,))
+        genero = cursor.fetchone()
+        conexao.close()
+ 
+        return render_template('editar_genero.html', genero=genero)
+
+@app.route('/remover_genero/<int:id>', methods=['POST'])
+@login_required
+def remover_genero(id):
+    conexao = obter_conexao()
+
+    try:
+        sql = """
+            DELETE FROM generos
+            WHERE id_autor = ?
+        """
+        conexao.execute(sql, (id,))
+        conexao.commit()
+        flash("Autor removido com sucesso!", category="success")
+
+    except:
+        print('Except')
+        flash("Não é possível excluir este gênero, pois ele está vinculado a um livro.", category="error")
+
+    finally:
+        conexao.close()
+
+    return redirect(url_for('generos'))
+
 @app.route('/registrar_autor', methods=["GET", "POST"])
 @login_required
 def registrar_autor():
@@ -105,6 +175,7 @@ def autores():
     conexao.close()
     return render_template('autores.html',autores = autores)
 
+
 @app.route('/editar_autor', methods=["GET", "POST"])
 @login_required
 def editar_autor():
@@ -117,9 +188,7 @@ def editar_autor():
         novo_data_nascimento = request.form['data_nascimento']
         nova_biografia = request.form['biografia']
 
-        sql = """UPDATE autores
-                 SET nome_autor = ?, nacionalidade = ?, data_nascimento = ?, biografia = ?
-                 WHERE id_autor = ?"""
+        sql = """UPDATE autores SET nome_autor = ?, nacionalidade = ?, data_nascimento = ?, biografia = ? WHERE id_autor = ?"""
         conexao.execute(sql, (novo_nome, novo_nacionalidade, novo_data_nascimento, nova_biografia, id_autor))
         conexao.commit()
         conexao.close()
@@ -137,24 +206,19 @@ def editar_autor():
 @app.route('/remover_autor/<int:id>', methods=['POST'])
 @login_required
 def remover_autor(id):
+    id_autor = request.form['id']
     conexao = obter_conexao()
-
-    try:
-        sql = """
-            DELETE FROM autores
-            WHERE id_autor = ?
-        """
-        conexao.execute(sql, (id,))
+    registros = conexao.execute(
+        'SELECT 1 FROM livros WHERE autor_id = ?', (id_autor,)
+    ).fetchone()
+    
+    if registros:
+        flash('Não é possível apagar: o autor está vinculado a um livro.', 'danger')
+    
+    else:
+        conexao.execute('DELETE FROM autores WHERE id_autor = ?', (id_autor,))
         conexao.commit()
-        flash("Autor removido com sucesso!", category="success")
-
-    except:
-        print('Except')
-        flash("Não é possível excluir este autor, pois ele está vinculado a um livro.", category="error")
-
-    finally:
-        conexao.close()
-
+    conexao.close()
     return redirect(url_for('autores'))
 
 @app.route('/livros', methods=["GET", "POST"])
@@ -271,7 +335,6 @@ def editar_livro(id):
         quantidade_disponivel = request.form['quantidade_disponivel']
         resumo = request.form['resumo']
 
-        # AUTOR
         autor_resultado = conexao.execute("SELECT id_autor FROM autores WHERE nome_autor = ?", (autor,)).fetchone()
 
         if autor_resultado is None and 'nacionalidade' not in request.form:
@@ -381,21 +444,12 @@ def emprestimo():
 def ver_emprestimos():
     conexao = obter_conexao()
 
-    consulta = '''
-        SELECT 
-            emprestimos.id_emprestimo,
-            usuarios.nome_usuario,
-            livros.titulo,
-            emprestimos.data_emprestimo,
-            emprestimos.data_devolucao_prevista,
-            emprestimos.data_devolucao_real,
-            emprestimos.status_emprestimo
-        FROM emprestimos
-        JOIN usuarios ON emprestimos.usuario_id = usuarios.id_usuario
-        JOIN livros ON emprestimos.livro_id = livros.id_livro
-        ORDER BY emprestimos.data_emprestimo DESC
+    sql = '''SELECT emprestimos.id_emprestimo,usuarios.nome_usuario,livros.titulo,emprestimos.data_emprestimo,
+    emprestimos.data_devolucao_prevista,emprestimos.data_devolucao_real,
+    emprestimos.status_emprestimo FROM emprestimos JOIN usuarios ON emprestimos.usuario_id = usuarios.id_usuario
+    JOIN livros ON emprestimos.livro_id = livros.id_livro ORDER BY emprestimos.data_emprestimo DESC
     '''
-    lista_emprestimos = conexao.execute(consulta).fetchall()
+    lista_emprestimos = conexao.execute(sql).fetchall()
     conexao.close()
     return render_template('ver_emprestimos.html', lista_emprestimos=lista_emprestimos)
 
@@ -416,11 +470,8 @@ def editar_emprestimos(id_emprestimo):
         return redirect(url_for("ver_emprestimos"))
 
     if request.method == "POST":
-
-        # ❗ não altera usuário
         usuario_id = emprestimo['usuario_id']
 
-        # livro antigo e novo
         livro_antigo = emprestimo['livro_id']
         livro_novo = request.form['livro_id']
 
@@ -429,7 +480,6 @@ def editar_emprestimos(id_emprestimo):
         data_devolucao_real = emprestimo['data_devolucao_real']
         status_emprestimo = emprestimo['status_emprestimo']
 
-        # ❗ Se o livro mudou, ajusta estoque
         if livro_novo != str(livro_antigo):
             conexao.execute(""" UPDATE livros SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?
             """, (livro_antigo,))

@@ -1,0 +1,39 @@
+{% extends 'base.html'%}
+
+{% block titulo %} generos {% endblock %}
+
+{% block conteudo %}
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+    <h1>🧑✏️ Gêneros</h1>
+    {% if generos %}
+    <table border="1">
+        <tr>
+            <th>Nome</th>
+            <th></th>
+        </tr>
+        {% for genero in generos %}
+        <tr>
+            <td>{{ genero.nome_genero }}</td>
+            <td>
+                <a>
+                    <form action="{{ url_for('remover_genero', id = genero.id_genero) }}" method="post" style="display:inline;">
+                    <input type="hidden" name="id" value="{{ generos.id_genero }}">
+                    <button type="submit">Remover</button>
+                    </form>
+                </a>
+                <a href="{{ url_for('editar_genero', id = genero.id_genero) }}"><button type="button">Editar</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>Nenhum genero cadastrado.</p>
+    {% endif %}
+    <a href="{{url_for('registrar_genero')}}">Registrar gênero</a>
+{% endblock %}

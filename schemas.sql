@@ -24,14 +24,14 @@ CREATE TABLE IF NOT EXISTS livros (
     autor_id INTEGER NOT NULL,
     titulo VARCHAR(255) NOT NULL,
     isbn VARCHAR(13) NOT NULL,
-    ano_publicacao INTEGER,
-    genero_id INTEGER,
-    editora_id INTEGER,
-    quantidade_disponivel INTEGER,
+    ano_publicacao INTEGER NOT NULL,
+    genero_id INTEGER NOT NULL,
+    editora_id INTEGER NOT NULL,
+    quantidade_disponivel INTEGER NOT NULl,
     resumo TEXT,
     FOREIGN KEY (autor_id) REFERENCES autores(id_autor) ON DELETE RESTRICT,
-    FOREIGN KEY (genero_id) REFERENCES generos(id_genero),
-    FOREIGN KEY (editora_id) REFERENCES editoras(id_editora)
+    FOREIGN KEY (genero_id) REFERENCES generos(id_genero) ON DELETE CASCADE,
+    FOREIGN KEY (editora_id) REFERENCES editoras(id_editora) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS usuarios (

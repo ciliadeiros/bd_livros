@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block titulo %}Editar Gênero{% endblock %}
+{% block conteudo %}
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<h1>📚 Editar Gênero</h1>
+
+<form method="POST" action="{{ url_for('editar_genero', id=genero.id_genero if genero else 0) }}">
+    <input type="hidden" name="genero_nao_existe" value="{{ '1' if genero_nao_existe else '0' }}">
+    <input type="hidden" name="genero_nome" value="{{ genero_nome or '' }}">
+    <input type="hidden" name="id_genero" value="{{ genero['id_genero'] }}">
+    Nome: <input type="text" name="nome" value="{{ genero.nome_genero if genero else '' }}" required><br>
+
+    {% if genero_nao_existe %}
+        <hr>
+        <h3>⚠️ Gênero não encontrado. Cadastre-o abaixo:</h3>
+        Nome: <input type="text" name="nome"><br>
+    {% endif %}
+
+    <button type="submit">Salvar</button>
+    <a href="{{ url_for('generos') }}">Cancelar</a>
+</form>
+
+{% endblock %}
