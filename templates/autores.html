@@ -1,6 +1,6 @@
 {% extends 'base.html'%}
 
-{% block titulo %} autores {% endblock %}
+{% block titulo %} autoras {% endblock %}
 
 {% block conteudo %}
 {% with mensagens = get_flashed_messages(with_categories=true) %}
@@ -10,7 +10,7 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
-    <h1>🧑✏️ Autores</h1>
+    <h1>🧑✏️ </h1>
     {% if autores %}
     <table border="1">
         <tr>
@@ -20,7 +20,7 @@
         </tr>
         {% for autor in autores %}
         <tr>
-            <td>{{ autor.nome }}</td>
+            <td>{{ autor.nome_autor }}</td>
             <td>{{ autor.biografia }}</td>
             <td>{{ autor.nacionalidade }}</td>
             <td>{{ autor.data_nascimento }}</td>

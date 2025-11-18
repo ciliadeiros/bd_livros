@@ -1,0 +1,41 @@
+{% extends 'base.html'%}
+
+{% block titulo %} editoras {% endblock %}
+
+{% block conteudo %}
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+        {% for categoria, mensagem in mensagens %}
+          <p class="{{ categoria }}">{{ mensagem }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+    <h1>🧑✏️ Editoras</h1>
+    {% if editoras %}
+    <table border="1">
+        <tr>
+            <th>Nome</th>
+            <th>Endereço</th>
+            <th></th>
+        </tr>
+        {% for editora in editoras %}
+        <tr>
+            <td>{{ editora.nome_editora }}</td>
+            <td>{{ editora.endereço_editora }}</td>
+            <td>
+                <a>
+                    <form action="{{ url_for('remover_editora', id = editora.id_editora) }}" method="post" style="display:inline;">
+                    <input type="hidden" name="id" value="{{ editora.id_editora }}">
+                    <button type="submit">Remover</button>
+                    </form>
+                </a>
+                <a href="{{ url_for('editar_editora', id = editora.id_editora) }}"><button type="button">Editar</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>Nenhuma editora cadastrada.</p>
+    {% endif %}
+    <a href="{{url_for('registrar_editora')}}">Registrar Editora</a> -->
+{% endblock %}

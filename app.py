@@ -9,7 +9,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 login_manager = LoginManager()
-login_manager.login_view = 'login'
+login_manager.login_view = 'login' #type: ignore
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///livros.db'
 app.secret_key = 'ablublublu'
@@ -66,7 +66,7 @@ def login():
             flash('Login feito com sucesso!', category='success')
             return redirect(url_for('livros'))
         else:
-            flash('Opa, você não tem cadastro. Entre na página de cadastro e se registre!', category='error')
+            flash('Opa, você não tem cadastro ou inseriu dados incorretos. Entre na página de cadastro e se registre ou informe corretamente!', category='error')
             return render_template('login.html')  
 
     # para requisições GET
@@ -175,7 +175,6 @@ def autores():
     conexao.close()
     return render_template('autores.html',autores = autores)
 
-
 @app.route('/editar_autor', methods=["GET", "POST"])
 @login_required
 def editar_autor():
@@ -268,6 +267,7 @@ def criar_livro():
         autor_resultado = conexao.execute(
             "SELECT id_autor FROM autores WHERE nome_autor = ?", (autor,)
         ).fetchone()
+
 
         if autor_resultado is None and 'nacionalidade' not in request.form:
             conexao.close()
@@ -404,6 +404,76 @@ def remover_livro():
     conexao.close()
     return redirect(url_for('livros'))
 
+@app.route('/registrar_editora', methods=["GET", "POST"])
+@login_required
+def registrar_editora():
+    print(request.form)
+    if request.method == "POST":
+        nome_edi = request.form['nome']
+        endereco = request.form['endereco']
+    
+        conexao = obter_conexao()
+        sql = """INSERT INTO editoras (nome_editora, endereco_editora) VALUES (?,?)"""
+        conexao.execute(sql, (nome_edi, endereco))
+        conexao.commit()
+        conexao.close() 
+        return redirect(url_for('editoras'))
+
+    return render_template('registrar_editoras.html')
+
+@app.route('/editoras', methods=["GET","POST"])
+@login_required
+def editoras():
+    conexao = obter_conexao()
+    editoras = conexao.execute('SELECT * FROM editoras').fetchall()
+    conexao.close()
+    return render_template('editoras.html', editoras = editoras)
+
+@app.route('/editar_editora', methods=["GET", "POST"])
+@login_required
+def editar_editora():
+    conexao = obter_conexao()
+
+    if request.method == "POST":
+        id_editora = request.form['id_editora']
+        nome = request.form['nome']
+        endereco = request.form['endereco']
+
+        sql = """UPDATE editoras SET nome_editora = ?, endereco_editora = ? WHERE id_editora = ?"""
+        conexao.execute(sql, (nome, endereco, id_editora))
+        conexao.commit()
+        conexao.close()
+        flash('Editora atualizada com sucesso!', category='success')
+        return redirect(url_for('editoras'))
+
+    else:
+        id_editora = request.args.get('id') 
+        cursor = conexao.execute("SELECT * FROM editoras WHERE id_editora = ?", (id_editora,))
+        editora = cursor.fetchone()
+        conexao.close()
+
+        return render_template('editar_editoras.html', editora=editora)
+
+@app.route('/remover_editora/<int:id>', methods=['POST'])
+@login_required
+def remover_editora(id):
+    id_editora = request.form['id']
+    conexao = obter_conexao()
+    registros = conexao.execute(
+        'SELECT 1 FROM livros WHERE editora_id = ?', (id_editora,)
+    ).fetchone()
+    
+    if registros:
+        flash('Não é possível apagar: a editora está vinculado a um livro.', 'danger')
+    
+    else:
+        conexao.execute('DELETE FROM editoras WHERE id_editora = ?', (id_editora,))
+        conexao.commit()
+    conexao.close()
+    return redirect(url_for('editoras'))
+
+
+
 @app.route('/emprestimo', methods=["GET", "POST"])
 @login_required
 def emprestimo():
@@ -457,8 +527,6 @@ def ver_emprestimos():
 @login_required
 def editar_emprestimos(id_emprestimo):
     conexao = obter_conexao()
-
-    # pegar dados originais
     emprestimo = conexao.execute(
         "SELECT * FROM emprestimos WHERE id_emprestimo = ?",
         (id_emprestimo,)
