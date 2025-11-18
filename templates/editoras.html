@@ -21,7 +21,7 @@
         {% for editora in editoras %}
         <tr>
             <td>{{ editora.nome_editora }}</td>
-            <td>{{ editora.endereço_editora }}</td>
+            <td>{{ editora.endereco_editora }}</td>
             <td>
                 <a>
                     <form action="{{ url_for('remover_editora', id = editora.id_editora) }}" method="post" style="display:inline;">

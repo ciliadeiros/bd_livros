@@ -133,7 +133,7 @@ def remover_genero(id):
     try:
         sql = """
             DELETE FROM generos
-            WHERE id_autor = ?
+            WHERE id_genero = ?
         """
         conexao.execute(sql, (id,))
         conexao.commit()
@@ -205,7 +205,7 @@ def editar_autor():
 @app.route('/remover_autor/<int:id>', methods=['POST'])
 @login_required
 def remover_autor(id):
-    id_autor = request.form['id']
+    id_autor = id
     conexao = obter_conexao()
     registros = conexao.execute(
         'SELECT 1 FROM livros WHERE autor_id = ?', (id_autor,)
