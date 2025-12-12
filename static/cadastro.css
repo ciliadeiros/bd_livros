@@ -1,70 +1,85 @@
 
-input, select {
-  padding: 15px;
-  border: 2px solid #4b724f;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  margin-top: 5px;
-  width: 600px;
-  background-color: rgb(251, 253, 246);
+body {
+    background-color: #f1f1f1;
+    margin: 0;
 }
 
-form {
+.logo img {
+    width: 120px;
+    height: auto;
+}
+
+.lado-dir img {
+    width: 120px;
+    height: auto;
+}
+
+.logo {
   display: flex;
-  flex-direction: column;
-  align-items: start;
-  font-size: 20px;
-  color:#3f5f42;
-  justify-content: center;
-}
-
-button {
-    background-color: #41a54e;
-    border-radius: 10px;
-    padding: 15px;
-    border: 0px;
-    width: 150px;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 15px;
-}
-
-.link_login{
-    font-size: 14px;
-    color:#043212
-}
-
-.link_login a {
-    text-decoration: none;
-    background-color: #866d43;
-    color: white;
-    font-weight: bold;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .container {
     display: flex;
-    gap: 70px;
+    justify-content: center;
+    justify-self: center;
+    gap: 40px;
+    width: 100%;
+    margin-top: 10px;
 }
 
-form h1 {
-    margin-bottom: 20px;
+.container form {
+    background: #fff;
+    border-radius: 10px;
+    width: 60%;
+    height: 70%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 2%;
+    justify-content: center;
+    padding: 15px;
 }
 
-.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    padding: 10px 15px;
-    margin: 10px 0;
+.container form h1 {
+    text-align: center;
+}
+
+.container form input {
     border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 
-.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-    padding: 10px 15px;
-    margin: 10px 0;
-    border-radius: 6px;
+.container form input[type="submit"] {
+    background-color: #0B6623;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    width: 150px;
+}
+
+.img img {
+    height: 620px;
+    margin-top: 0;
+}
+
+.linha {
+    display: flex;
+    gap: 10px;
+}
+
+.linha input {
+    display: inline-block;
+    width: 100%;
+    flex: 1;
+}
+
+.cinza {
+    background-color: #e5e5e5;
+    padding: 12px;
+    border-radius: 8px;
+    width: fit-content; 
 }

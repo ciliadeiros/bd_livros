@@ -1,24 +1,29 @@
-{% extends 'base.html' %}
-{% block titulo %} Cadastro {% endblock %}
+{% extends 'base.html'%}
+{% block titulo %} Formulário {% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='cadastro.css') }}">{% endblock %}
-
 {% block conteudo %}
+
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% if mensagens %}
+            {% for categoria, mensagem in mensagens %}
+            <p class="{{ categoria }}">{{ mensagem }}</p>
+            {% endfor %}
+        {% endif %}
+{% endwith %}
 <div class="container">
-    {% with mensagens = get_flashed_messages(with_categories=true) %}
-    {% if mensagens %}
-        {% for categoria, mensagem in mensagens %}
-          <p class="{{ categoria }}">{{ mensagem }}</p>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-<form action="" method="post">
-    <h1>👤 Cadastre-se!</h1>
-    Nome: <input type="text" name="nome"><br>
-    Email: <input type="email" name="email"><br>
-    Senha: <input type="password" name="senha"><br>
-    Numero de Telefone: <input type="text" name="numero_telefone"><br>
-    <p class="link_login">Já possui uma conta? Clique aqui e faça <a href="{{url_for('login')}}">LOGIN!</a></p><br>
-    <button type="submit">CONFIRMAR</button>
-</form>
+    <form action="" method="post">
+        <h1>👤 CADASTRO</h1>
+        Nome: <input type="text" name="nome">
+        Email: <input type="email" name="email">
+        Senha: <input type="password" name="senha">
+        Numero de Telefone: <input type="text" name="numero_telefone">
+        <i><p class="link_login">Já possui uma conta? Clique aqui e faça <a href="{{url_for('login')}}">LOGIN!</a></p></i>
+        <button type="submit">CONFIRMAR</button>
+    </form>
+    <div class="img">
+        <img src="../static/img/capivara-lendo-1.png" alt="">
+    </div>
 </div>
+
+
 {% endblock %}

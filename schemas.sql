@@ -1,3 +1,4 @@
+
 -- DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE IF NOT EXISTS autores (
@@ -31,7 +32,6 @@ CREATE TABLE IF NOT EXISTS livros (
     resumo TEXT,
     FOREIGN KEY (autor_id) REFERENCES autores(id_autor) ON DELETE RESTRICT,
     FOREIGN KEY (genero_id) REFERENCES generos(id_genero) ON DELETE CASCADE,
-    FOREIGN KEY (editora_id) REFERENCES editoras(id_editora) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -56,3 +56,24 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
 );
 
+conn = obter_conexao()
+cursor = conn.cursor()
+
+create_trigger_sql = '''
+create trigger imperdir_quatidade_negativa before insert
+on livros
+for each row
+begin
+	SELECT RAISE(ABORT)
+    WHERE NEW.quantidade_disponivel < 0;
+end;'''
+
+cursor.execute(create_trigger_sql)
+conn.commit()
+
+-- create trigger nome momento evento
+-- on tabela
+-- for each row
+-- begin
+-- #corpo do codigo
+-- end
