@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
 {% block titulo %}Registrar Empréstimo{% endblock %}
 {% block conteudo %}
+<div class="container">
+    <h1>🤲📖 Registrar Empréstimo</h1>
+
+    <form method="POST">
+        Livro:
+        <select name="livro_id" required>
+            <option value="">Selecione</option>
+            {% for livro in livros %}
+            <option value="{{ livro.id_livro }}">{{ livro.titulo }}</option>
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Salvar</button>
+        <a href="{{ url_for('emprestimo') }}">Cancelar</a>
+        <a href="{{ url_for('ver_emprestimos') }}">Ver Empréstimos</a>
+    </form>
+
 {% with mensagens = get_flashed_messages(with_categories=true) %}
     {% if mensagens %}
         {% for categoria, mensagem in mensagens %}
@@ -8,19 +25,6 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
-<h1>🤲📖 Registrar Empréstimo</h1>
+</div>
 
-<form method="POST">
-    Livro:
-    <select name="livro_id" required>
-        <option value="">Selecione</option>
-        {% for livro in livros %}
-        <option value="{{ livro.id_livro }}">{{ livro.titulo }}</option>
-        {% endfor %}
-    </select><br>
-
-    <button type="submit">Salvar</button>
-    <a href="{{ url_for('emprestimo') }}">Cancelar</a>
-    <a href="{{ url_for('ver_emprestimos') }}">Ver Empréstimos</a>
-</form>
 {% endblock %}

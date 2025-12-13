@@ -9,11 +9,6 @@ body {
     height: auto;
 }
 
-.lado-dir img {
-    width: 120px;
-    height: auto;
-}
-
 .logo {
   display: flex;
   justify-content: space-between;
@@ -23,63 +18,83 @@ body {
 .container {
     display: flex;
     justify-content: center;
-    justify-self: center;
-    gap: 40px;
     width: 100%;
-    margin-top: 10px;
+    flex-direction: column;
 }
 
-.container form {
+.container2 {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    justify-self: center;
+    width: 100%;
+    height: fit-content;
+}
+
+.container2 form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     background: #fff;
     border-radius: 10px;
     width: 60%;
-    height: 70%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 2%;
-    justify-content: center;
+    height: fit-content;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    gap: 8px;
     padding: 15px;
+    /* border: 5px solid rgb(13, 128, 0); */
 }
 
-.container form h1 {
+.container2 form h1 {
     text-align: center;
+    color: black;
 }
 
-.container form input {
+.container2 form input {
     border-radius: 6px;
     border: 1px solid #ccc;
     padding: 10px;
 }
 
-.container form input[type="submit"] {
-    background-color: #0B6623;
+.linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.linha button {
+    background-color: #024513;
     color: white;
     font-weight: bold;
     border: none;
     cursor: pointer;
     width: 150px;
+    height: fit-content;
+}
+
+.img {
+    display: flex;
+    justify-content: center; 
+    align-items:flex-end; 
+    width: 28%;
+    /* border: 5px solid rgb(116, 219, 65); */
 }
 
 .img img {
-    height: 620px;
-    margin-top: 0;
+    height: 460px;
+    /* border: 5px solid rgb(194, 16, 3); */
 }
 
-.linha {
+.img2{
     display: flex;
-    gap: 10px;
+    justify-content: center; 
+    align-items:flex-end; 
+    width: 20%;
+    /* border: 5px solid rgb(116, 219, 65); */
 }
 
-.linha input {
-    display: inline-block;
-    width: 100%;
-    flex: 1;
+.img2 img {
+    height: 350px;
+    /* border: 5px solid rgb(194, 16, 3); */
 }
 
-.cinza {
-    background-color: #e5e5e5;
-    padding: 12px;
-    border-radius: 8px;
-    width: fit-content; 
-}

@@ -1,12 +1,20 @@
-<nav>
-    <div class="links">
-        <a href="{{ url_for('index') }}">Início</a>
-        <a href="{{ url_for('livros') }}">Livros</a>
-        <a href="{{ url_for('autores') }}">Autores</a>
-        <a href="{{ url_for('generos') }}">Gêneros</a>
-        <a href="{{ url_for('emprestimo') }}">Emprestimo</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('cadastro') }}">Cadastro</a>
-        <a href="{{ url_for('editoras')}}">Editoras</a>
+<div class="menu">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
     </div>
-</nav>
+
+    <div class="links">
+        <a href="/">Início</a>
+        <a href="/emprestimo">Empréstimo</a>
+        <div class="outros-links">
+            <a href="/livros">Livros</a>
+            <div class="outros-links-menu">
+                <a href="/autores">Autores</a>
+                <a href="/generos">Gêneros</a>
+                <a href="/editoras">Editoras</a>
+            </div>
+        </div>
+        <a href="/login">Login</a>
+        <a href="/cadastro">Cadastro</a>
+    </div>
+</div>

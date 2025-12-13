@@ -1,6 +1,6 @@
 .menu {
     height: 10vh;             
-    min-height: 60px;         
+    min-height: 40px;         
     width: 100%;
     background: #353535;
     display: flex;
@@ -18,7 +18,11 @@
 }
 
 .menu .logo img {
-    width: 120px;
+    width: 180px;
+}
+
+.menu .logo p {
+    display: flex;
 }
 
 .menu .links {
@@ -44,4 +48,35 @@
     width: 100%;
 }
 
-* { font-family:Arial, Helvetica, sans-serif}
+* { font-family:Arial, Helvetica, sans-serif;}
+
+.outros-links {
+    position: relative;
+}
+
+.outros-links-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    background: #353535;
+    min-width: 160px;
+
+    flex-direction: column;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.outros-links:hover .outros-links-menu {
+    display: flex;
+}
+
+.outros-links-menu a {
+    margin: 0;
+    padding: 8px 15px;
+}
+
+.outros-links-menu a:hover {
+    background-color: #4a4a4a;
+}

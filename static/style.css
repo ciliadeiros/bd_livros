@@ -41,12 +41,14 @@ button:hover{
 
 .error {
   display: flex;
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #f8d7dab1;
+  color: #69000b;
   border: 1px solid #f5c6cb;
   padding: 10px 15px;
-  margin: 20px 0;
   border-radius: 6px;
   width:fit-content;
   justify-self: center;
+  align-self: center;
+  font-weight: bold;
+  margin-top: 20px;
 }
