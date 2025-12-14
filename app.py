@@ -225,22 +225,14 @@ def remover_autor(id):
 def livros():
     conexao = obter_conexao()
 
-    sql = """
-        SELECT 
-            livros.id_livro,
-            livros.titulo,
-            autores.nome_autor AS autor,
-            generos.nome_genero AS genero,
-            editoras.nome_editora AS editora,
-            livros.isbn,
-            livros.ano_publicacao,
-            livros.quantidade_disponivel,
-            livros.resumo
-        FROM livros
-        LEFT JOIN autores ON livros.autor_id = autores.id_autor
-        LEFT JOIN generos ON livros.genero_id = generos.id_genero
-        LEFT JOIN editoras ON livros.editora_id = editoras.id_editora
-        ORDER BY livros.titulo
+    sql = """SELECT livros.id_livro, livros.titulo, autores.nome_autor AS autor,
+    generos.nome_genero AS genero, editoras.nome_editora AS editora,
+    livros.isbn, livros.ano_publicacao,
+    livros.quantidade_disponivel, livros.resumo
+    FROM livros LEFT JOIN autores ON livros.autor_id = autores.id_autor
+    LEFT JOIN generos ON livros.genero_id = generos.id_genero
+    LEFT JOIN editoras ON livros.editora_id = editoras.id_editora
+    ORDER BY livros.titulo
     """
 
     livros = conexao.execute(sql).fetchall()

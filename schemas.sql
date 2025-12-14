@@ -1,6 +1,4 @@
 
--- DROP TABLE IF EXISTS usuarios;
-
 CREATE TABLE IF NOT EXISTS autores (
     id_autor INTEGER PRIMARY KEY AUTOINCREMENT,
     nome_autor VARCHAR(255) NOT NULL,
@@ -28,10 +26,11 @@ CREATE TABLE IF NOT EXISTS livros (
     ano_publicacao INTEGER NOT NULL,
     genero_id INTEGER NOT NULL,
     editora_id INTEGER NOT NULL,
-    quantidade_disponivel INTEGER NOT NULl,
+    quantidade_disponivel INTEGER NOT NULL,
     resumo TEXT,
     FOREIGN KEY (autor_id) REFERENCES autores(id_autor) ON DELETE RESTRICT,
     FOREIGN KEY (genero_id) REFERENCES generos(id_genero) ON DELETE CASCADE,
+    FOREIGN KEY (editora_id) REFERENCES editoras(id_editora)
 );
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -56,24 +55,35 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
 );
 
-conn = obter_conexao()
-cursor = conn.cursor()
+CREATE TABLE IF NOT EXISTS log_emprestimo (
+    id_log INTEGER PRIMARY KEY AUTOINCREMENT,
+    emprestimo_id INTEGER NOT NULL,
+    acao TEXT NOT NULL,
+    data_evento DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (emprestimo_id) REFERENCES emprestimos(id_emprestimo)
+);
 
-create_trigger_sql = '''
-create trigger imperdir_quatidade_negativa before insert
-on livros
+-- Após registrar um mesmo empréstimo mais de uma vez,
+-- ele é deletado automaticamente e somente o mais atual permanece (por consequência)
+create trigger if not exists remover_emprestimo_duplicado
+after insert on emprestimos
 for each row
 begin
-	SELECT RAISE(ABORT)
-    WHERE NEW.quantidade_disponivel < 0;
-end;'''
+    delete from emprestimos
+    where id_emprestimo != NEW.id_emprestimo
+    and usuario_id = NEW.usuario_id
+    and livro_id = NEW.livro_id
+    and data_emprestimo = NEW.data_emprestimo;
+end;
 
-cursor.execute(create_trigger_sql)
-conn.commit()
+-- Esse trigger registra log do empréstimo após seus dado(s) serem atualizados
+create trigger if not exists registar_log_emprestimo__atualizado
+after update on emprestimos
+for each row
+begin
+    insert into log_emprestimo (emprestimo_id, acao)
+    values (NEW.id_emprestimo, 'Dados do emprestimo atualizado(s)');
+END;
 
--- create trigger nome momento evento
--- on tabela
--- for each row
--- begin
--- #corpo do codigo
--- end
+
+
