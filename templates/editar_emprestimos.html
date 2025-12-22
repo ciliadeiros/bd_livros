@@ -14,47 +14,44 @@
 
 <form method="POST" action="{{ url_for('editar_emprestimos', id_emprestimo=emprestimo.id_emprestimo) }}">
 
-    <!-- Usuário (não pode ser alterado) -->
-    <label>Usuário:</label>
-    <input type="text" value="{{ emprestimo.nome_usuario if emprestimo.nome_usuario else '' }}" disabled>
+    <label><b>Usuário:</b></label>
+    <label>{{ emprestimo['nome_usuario'] }}</label>
     <br>
 
-    <!-- Livro -->
-    <label>Livro:</label>
+    <label><b>Livro:</b></label>
     <select name="livro_id" required>
-        {% for livro in livros %}
-            <option value="{{ livro.id_livro }}"
-                {% if livro.id_livro == emprestimo.livro_id %}selected{% endif %}>
-                {{ livro.titulo }}
-            </option>
-        {% endfor %}
+    {% for livro in livros %}
+        <option value="{{ livro.id_livro }}"
+            {% if livro.id_livro == emprestimo.livro_id %}selected{% endif %}>
+            {{ livro.titulo }}
+        </option>
+    {% endfor %}
     </select>
     <br>
 
-    <!-- Data do empréstimo -->
-    <label>Data do Empréstimo:</label>
-    <input type="date" name="data_emprestimo"
-           value="{{ emprestimo.data_emprestimo[:10] }}" required>
+    <label><b>Data do Empréstimo:</b></label>
+    <span>{{ emprestimo.data_emprestimo[:10] }}</span>
+    <input type="hidden" name="data_emprestimo" value="{{ emprestimo.data_emprestimo[:10] }}">
     <br>
 
-    <!-- Data prevista (somente exibição) -->
-    <label>Devolução Prevista:</label>
-    <input type="text" value="{{ emprestimo.data_devolucao_prevista[:10] }}" disabled>
+    <label><b>Devolução Prevista:</b></label>
+    <span>{{ emprestimo.data_devolucao_prevista[:10] }}</span>
+    <input type="hidden" name="data_devolucao_prevista" value="{{ emprestimo.data_devolucao_prevista[:10] }}">
     <br>
 
-    <!-- Data real da devolução (somente exibição) -->
-    <label>Devolução Real:</label>
-    <input type="text" value="{{ emprestimo.data_devolucao_real[:10] if emprestimo.data_devolucao_real else '' }}" disabled>
+    <label><b>Devolução Real:</b></label>
+    <input type="date"
+           name="data_devolucao_real"
+           value="{{ emprestimo.data_devolucao_real[:10] if emprestimo.data_devolucao_real else '' }}">
     <br>
 
-    <!-- Status (somente exibição) -->
-    <label>Status:</label>
-    <input type="text" value="{{ emprestimo.status_emprestimo }}" disabled>
+    <label><b>Status:</b></label>
+    <span>{{ emprestimo.status_emprestimo }}</span>
+    <input type="hidden" name="status_emprestimo" value="{{ emprestimo.status_emprestimo }}">
     <br><br>
-    
+
     <button type="submit">Salvar</button>
     <a href="{{ url_for('ver_emprestimos') }}">Cancelar</a>
-
 </form>
 
 {% endblock %}

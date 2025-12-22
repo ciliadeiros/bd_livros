@@ -395,6 +395,7 @@ def editar_livro(id):
         """, (titulo, autor_id, isbn, ano_publicacao, genero_id, editora_id, quantidade_disponivel, resumo, id))
         conexao.commit()
         conexao.close()
+        flash('Livro atualizado com sucesso!', category='success')
         return redirect(url_for("livros"))
 
     livro = conexao.execute("SELECT * FROM livros WHERE id_livro = ?", (id,)).fetchone()
@@ -545,41 +546,57 @@ def ver_emprestimos():
 @login_required
 def editar_emprestimos(id_emprestimo):
     conexao = obter_conexao()
+
     emprestimo = conexao.execute(
-        "SELECT * FROM emprestimos WHERE id_emprestimo = ?",(id_emprestimo,)).fetchone()
+        """
+        SELECT 
+            emprestimos.id_emprestimo,
+            emprestimos.usuario_id,
+            emprestimos.livro_id,
+            emprestimos.data_emprestimo,
+            emprestimos.data_devolucao_prevista,
+            emprestimos.data_devolucao_real,
+            emprestimos.status_emprestimo,
+            usuarios.nome_usuario
+        FROM emprestimos
+        JOIN usuarios ON usuarios.id_usuario = emprestimos.usuario_id
+        WHERE emprestimos.id_emprestimo = ?
+        """,
+        (id_emprestimo,)).fetchone()
+
 
     if not emprestimo:
-        flash("Empréstimo não encontrado!", "danger")
         conexao.close()
+        flash("Empréstimo não encontrado!", "danger")
         return redirect(url_for("ver_emprestimos"))
 
     if request.method == "POST":
-        usuario_id = emprestimo['usuario_id']
-
-        livro_antigo = emprestimo['livro_id']
         livro_novo = request.form['livro_id']
+        data_emprestimo = request.form['data_emprestimo']
+        data_devolucao_prevista = request.form['data_devolucao_prevista']
+        data_devolucao_real = request.form.get('data_devolucao_real')
+        status_emprestimo = request.form['status_emprestimo']
 
-        data_emprestimo = emprestimo['data_emprestimo']
-        data_devolucao_prevista = emprestimo['data_devolucao_prevista']
-        data_devolucao_real = emprestimo['data_devolucao_real']
-        status_emprestimo = emprestimo['status_emprestimo']
-
-        if livro_novo != str(livro_antigo):
-            conexao.execute(""" UPDATE livros SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?""", (livro_antigo,))
-
-            conexao.execute("""UPDATE livros SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ?""", (livro_novo,))
-
-        conexao.execute("""UPDATE emprestimos SET livro_id = ? WHERE id_emprestimo = ?""", (livro_novo, id_emprestimo))
-
+        conexao.execute("""
+            UPDATE emprestimos
+            SET livro_id = ?,
+                data_emprestimo = ?,
+                data_devolucao_prevista = ?,
+                data_devolucao_real = ?,
+                status_emprestimo = ?
+            WHERE id_emprestimo = ?
+        """, (livro_novo,data_emprestimo,data_devolucao_prevista,data_devolucao_real,status_emprestimo,id_emprestimo))
         conexao.commit()
         conexao.close()
+
         flash("Empréstimo atualizado com sucesso!", "success")
         return redirect(url_for("ver_emprestimos"))
 
     livros = conexao.execute("SELECT * FROM livros").fetchall()
     conexao.close()
 
-    return render_template('editar_emprestimos.html', emprestimo=emprestimo, livros=livros)
+    return render_template('editar_emprestimos.html',emprestimo=emprestimo,livros=livros)
+
 
 
 if __name__ == '__main__':

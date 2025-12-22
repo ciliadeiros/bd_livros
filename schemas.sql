@@ -55,14 +55,6 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
 );
 
--- CREATE TABLE IF NOT EXISTS log_emprestimo (
---     id_log INTEGER PRIMARY KEY AUTOINCREMENT,
---     emprestimo_id INTEGER NOT NULL,
---     acao TEXT NOT NULL,
---     data_evento DATETIME DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (emprestimo_id) REFERENCES emprestimos(id_emprestimo) on delete cascade
--- );
-
 -- drop table log_triggers;
 
 CREATE TABLE log_triggers (
@@ -98,9 +90,8 @@ end;
 -- atualiza status para devolvido
 create trigger if not exists atualizar_status_devolvido
 after update on emprestimos
-when new.status_emprestimo = old.status_emprestimo
-    and new.data_devolucao_real != null
-    and old.data_devolucao_prevista != null
+when new.data_devolucao_real IS NOT NULL
+    and old.data_devolucao_prevista IS NOT NULL
     and new.data_devolucao_real <= old.data_devolucao_prevista
 begin
     update emprestimos
@@ -111,8 +102,7 @@ end;
 -- atualiza status para atrasado
 create trigger if not exists atualizar_status_atrasado
 after update on emprestimos
-when new.status_emprestimo = old.status_emprestimo
- and new.data_devolucao_real != null
+when new.data_devolucao_real != null
  and old.data_devolucao_prevista != null
  and new.data_devolucao_real > old.data_devolucao_prevista
 begin
@@ -126,9 +116,8 @@ end;
 -- quem não há como comparar enquanto data_devolucao_real for null
 create trigger if not exists registrar_log_emprestimo_atualizado
 after update on emprestimos
-when new.status_emprestimo = old.status_emprestimo
- and (new.data_devolucao_real != old.data_devolucao_real or new.data_devolucao_prevista != old.data_devolucao_prevista
- or new.data_emprestimo != old.data_emprestimo)
+when (new.data_devolucao_real != old.data_devolucao_real or new.data_devolucao_prevista != old.data_devolucao_prevista
+or new.data_emprestimo != old.data_emprestimo)
 begin
     insert into log_triggers (mensagem)
     values ('Dado(s) do empréstimo atualizado(s)');
