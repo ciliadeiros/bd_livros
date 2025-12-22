@@ -55,17 +55,27 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS log_emprestimo (
+-- CREATE TABLE IF NOT EXISTS log_emprestimo (
+--     id_log INTEGER PRIMARY KEY AUTOINCREMENT,
+--     emprestimo_id INTEGER NOT NULL,
+--     acao TEXT NOT NULL,
+--     data_evento DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (emprestimo_id) REFERENCES emprestimos(id_emprestimo) on delete cascade
+-- );
+
+-- drop table log_triggers;
+
+CREATE TABLE log_triggers (
     id_log INTEGER PRIMARY KEY AUTOINCREMENT,
-    emprestimo_id INTEGER NOT NULL,
-    acao TEXT NOT NULL,
-    data_evento DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (emprestimo_id) REFERENCES emprestimos(id_emprestimo) on delete cascade
+    evento TEXT,
+    mensagem TEXT,
+    data_execucao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    lida INTEGER DEFAULT 0
 );
 
--- triggers
+---- triggers: Atualização Automática Pós-Evento ----
 
--- remove empréstimos duplicados, mantendo o mais recente
+-- remove mesmos empréstimos duplicados e realizados antes da antiga data de devolução, mantendo o mais recente
 create trigger if not exists remover_emprestimo_duplicado
 after insert on emprestimos
 begin
@@ -89,9 +99,9 @@ end;
 create trigger if not exists atualizar_status_devolvido
 after update on emprestimos
 when new.status_emprestimo = old.status_emprestimo
- and new.data_devolucao_real != null
- and old.data_devolucao_prevista != null
- and new.data_devolucao_real <= old.data_devolucao_prevista
+    and new.data_devolucao_real != null
+    and old.data_devolucao_prevista != null
+    and new.data_devolucao_real <= old.data_devolucao_prevista
 begin
     update emprestimos
     set status_emprestimo = 'devolvido'
@@ -114,14 +124,14 @@ end;
 -- registra log quando dados do empréstimo são alterados:
 --> Obs.: Só começa a cadastrar os logs quando o usuário devolver o livro, já
 -- quem não há como comparar enquanto data_devolucao_real for null
-create trigger if not exists registrar_log_emprestimo_atualizado_usuario
+create trigger if not exists registrar_log_emprestimo_atualizado
 after update on emprestimos
 when new.status_emprestimo = old.status_emprestimo
  and (new.data_devolucao_real != old.data_devolucao_real or new.data_devolucao_prevista != old.data_devolucao_prevista
  or new.data_emprestimo != old.data_emprestimo)
 begin
-    insert into log_emprestimo (emprestimo_id, acao)
-    values (new.id_emprestimo, 'dados do emprestimo atualizado(s)');
+    insert into log_triggers (mensagem)
+    values ('Dado(s) do empréstimo atualizado(s)');
 end;
 
 -- registra log quando status do empréstimo muda
@@ -129,8 +139,8 @@ create trigger if not exists registrar_log_status_emprestimo
 after update on emprestimos
 when new.status_emprestimo != old.status_emprestimo
 begin
-    insert into log_emprestimo (emprestimo_id, acao)
-    values (new.id_emprestimo, 'status do emprestimo alterado');
+    insert into log_triggers (mensagem)
+    values ('Status do empréstimo alterado');
 end;
 
 

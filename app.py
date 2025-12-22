@@ -19,6 +19,31 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.achar_email(user_id)
 
+@app.before_request
+def carregar_mensagens_trigger():
+    if request.endpoint in ('static', 'login'):
+        return
+
+    conexao = obter_conexao()
+
+    mensagens = conexao.execute("""
+        SELECT id_log, mensagem
+        FROM log_triggers
+        WHERE lida = 0
+        ORDER BY data_execucao""").fetchall()
+
+    for msg in mensagens:
+        flash(msg['mensagem'], 'info')
+
+    conexao.execute("""
+        UPDATE log_triggers
+        SET lida = 1
+        WHERE lida = 0""")
+
+    conexao.commit()
+    conexao.close()
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -236,6 +261,7 @@ def livros():
     """
 
     livros = conexao.execute(sql).fetchall()
+    
     conexao.close()
 
     return render_template('livros.html', livros=livros)
@@ -520,9 +546,7 @@ def ver_emprestimos():
 def editar_emprestimos(id_emprestimo):
     conexao = obter_conexao()
     emprestimo = conexao.execute(
-        "SELECT * FROM emprestimos WHERE id_emprestimo = ?",
-        (id_emprestimo,)
-    ).fetchone()
+        "SELECT * FROM emprestimos WHERE id_emprestimo = ?",(id_emprestimo,)).fetchone()
 
     if not emprestimo:
         flash("Empréstimo não encontrado!", "danger")
@@ -541,11 +565,9 @@ def editar_emprestimos(id_emprestimo):
         status_emprestimo = emprestimo['status_emprestimo']
 
         if livro_novo != str(livro_antigo):
-            conexao.execute(""" UPDATE livros SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?
-            """, (livro_antigo,))
+            conexao.execute(""" UPDATE livros SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id_livro = ?""", (livro_antigo,))
 
-            conexao.execute("""UPDATE livros SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ?
-            """, (livro_novo,))
+            conexao.execute("""UPDATE livros SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id_livro = ?""", (livro_novo,))
 
         conexao.execute("""UPDATE emprestimos SET livro_id = ? WHERE id_emprestimo = ?""", (livro_novo, id_emprestimo))
 
@@ -558,6 +580,7 @@ def editar_emprestimos(id_emprestimo):
     conexao.close()
 
     return render_template('editar_emprestimos.html', emprestimo=emprestimo, livros=livros)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
