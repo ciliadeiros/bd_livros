@@ -67,20 +67,6 @@ CREATE TABLE if not exists log_triggers (
 
 ---- triggers: Atualização Automática Pós-Evento ----
 
--- drop trigger if exists registrar_log_emprestimo_atualizado;
--- drop trigger if exists registrar_log_status_emprestimo;
-
--- remove mesmos empréstimos duplicados e realizados antes da antiga data de devolução, mantendo o mais recente
-create trigger if not exists remover_emprestimo_duplicado
-after insert on emprestimos
-begin
-    delete from emprestimos
-    where id_emprestimo != new.id_emprestimo
-      and usuario_id = new.usuario_id
-      and livro_id = new.livro_id
-      and new.data_emprestimo <= data_devolucao_prevista;
-end;
-
 -- atualiza quantidade disponível do livro após exclusão do empréstimo
 create trigger if not exists atualizar_quantidade_disponivel
 after delete on emprestimos
