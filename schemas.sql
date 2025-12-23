@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS emprestimos (
 
 -- drop table log_triggers;
 
-CREATE TABLE log_triggers (
+CREATE TABLE if not exists log_triggers (
     id_log INTEGER PRIMARY KEY AUTOINCREMENT,
     evento TEXT,
     mensagem TEXT,
@@ -66,6 +66,9 @@ CREATE TABLE log_triggers (
 );
 
 ---- triggers: Atualização Automática Pós-Evento ----
+
+-- drop trigger if exists registrar_log_emprestimo_atualizado;
+-- drop trigger if exists registrar_log_status_emprestimo;
 
 -- remove mesmos empréstimos duplicados e realizados antes da antiga data de devolução, mantendo o mais recente
 create trigger if not exists remover_emprestimo_duplicado
@@ -90,26 +93,30 @@ end;
 -- atualiza status para devolvido
 create trigger if not exists atualizar_status_devolvido
 after update on emprestimos
-when new.data_devolucao_real IS NOT NULL
-    and old.data_devolucao_prevista IS NOT NULL
-    and new.data_devolucao_real <= old.data_devolucao_prevista
+when
+    new.data_devolucao_real is not null
+    and new.data_devolucao_prevista is not null
+    and new.data_devolucao_real <= new.data_devolucao_prevista
 begin
     update emprestimos
     set status_emprestimo = 'devolvido'
     where id_emprestimo = new.id_emprestimo;
 end;
 
+
 -- atualiza status para atrasado
 create trigger if not exists atualizar_status_atrasado
 after update on emprestimos
-when new.data_devolucao_real != null
- and old.data_devolucao_prevista != null
- and new.data_devolucao_real > old.data_devolucao_prevista
+when
+    new.data_devolucao_real is not null
+    and new.data_devolucao_prevista is not null
+    and new.data_devolucao_real > new.data_devolucao_prevista
 begin
     update emprestimos
     set status_emprestimo = 'atrasado'
     where id_emprestimo = new.id_emprestimo;
 end;
+
 
 -- registra log quando dados do empréstimo são alterados:
 --> Obs.: Só começa a cadastrar os logs quando o usuário devolver o livro, já
@@ -120,7 +127,7 @@ when (new.data_devolucao_real != old.data_devolucao_real or new.data_devolucao_p
 or new.data_emprestimo != old.data_emprestimo)
 begin
     insert into log_triggers (mensagem)
-    values ('Dado(s) do empréstimo atualizado(s)');
+    values ('Emprestimo atualizado com sucesso!');
 end;
 
 -- registra log quando status do empréstimo muda
@@ -129,8 +136,6 @@ after update on emprestimos
 when new.status_emprestimo != old.status_emprestimo
 begin
     insert into log_triggers (mensagem)
-    values ('Status do empréstimo alterado');
+    values ('Status do emprestimo alterado com sucesso!');
 end;
-
-
 

@@ -33,7 +33,7 @@ def carregar_mensagens_trigger():
         ORDER BY data_execucao""").fetchall()
 
     for msg in mensagens:
-        flash(msg['mensagem'], 'info')
+        flash(msg['mensagem'], category='success')
 
     conexao.execute("""
         UPDATE log_triggers
@@ -491,8 +491,6 @@ def remover_editora(id):
     conexao.close()
     return redirect(url_for('editoras'))
 
-
-
 @app.route('/emprestimo', methods=["GET", "POST"])
 @login_required
 def emprestimo():
@@ -589,12 +587,11 @@ def editar_emprestimos(id_emprestimo):
         conexao.commit()
         conexao.close()
 
-        flash("Empréstimo atualizado com sucesso!", "success")
         return redirect(url_for("ver_emprestimos"))
 
     livros = conexao.execute("SELECT * FROM livros").fetchall()
     conexao.close()
-
+    
     return render_template('editar_emprestimos.html',emprestimo=emprestimo,livros=livros)
 
 
