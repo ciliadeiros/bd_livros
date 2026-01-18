@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     data_emprestimo DATE,
     data_devolucao_prevista DATE,
     data_devolucao_real DATE,
+    dias_emprestimo INTEGER, -- coloquei aqui pra ser calculado automaticamente e faciltar a vida
     status_emprestimo TEXT CHECK(status_emprestimo IN ('pendente', 'devolvido', 'atrasado')),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario),
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
@@ -125,3 +126,55 @@ begin
     values ('Status do emprestimo alterado com sucesso!');
 end;
 
+
+
+---- triggers: Geração Automática de Valores ----
+
+
+-- preenche a data de inscrção do usuário automaticamente
+create trigger if not exists preencher_data_inscricao
+after insert on usuarios
+when new.data_inscricao is null
+begin
+    update usuarios
+    set data_inscricao = date('now')
+    where id_usuario = new.id_usuario;
+end;
+
+-- Criar valores derivados ou padrões.
+-- 
+-- Reduzir necessidade de intervenção manual.
+
+-- calcula dias de empréstimo
+create trigger if not exists calcular_ias_emprestimo
+after insert on emprestimos
+when new.data_devolucao_prevista is not null
+begin
+    update emprestimos
+    set dias_emprestimo = julianday(new.data_devolucao_prevista) - julianday(new.data_emprestimo)
+    where id_emprestimo = new.id_emprestimo;
+end;
+-- o julianday transforma a data em um número de dias
+
+-- Preencher data de cadastro de aluno quando não informada.
+
+
+-- define data de empréstimo padrão caso não informada - no caso,  data atual
+create trigger if not exists definir_data_emprestimo
+after insert on emprestimos
+when new.data_emprestimo is null
+begin
+    update emprestimos
+    set data_emprestimo = date('now')
+    where id_emprestimo = new.id_emprestimo;
+end;
+
+
+-- Avisa sobre emprestimos atrasados
+create trigger if not exists avisar_se_status_emprestimo_atrasado
+after update on emprestimos
+when new.status_emprestimo = 'atrasado' and old.status_emprestimo != 'atrasado' 
+begin
+    insert into log_triggers (mensagem)
+    values ('Empréstimo atrasado!');
+end;
