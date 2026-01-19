@@ -1,10 +1,10 @@
-
 CREATE TABLE IF NOT EXISTS autores (
     id_autor INTEGER PRIMARY KEY AUTOINCREMENT,
     nome_autor VARCHAR(255) NOT NULL,
     nacionalidade VARCHAR(255),
     data_nascimento DATE,
-    biografia TEXT
+    biografia TEXT,
+    idade_autor INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS generos (
@@ -176,9 +176,17 @@ begin
     where id_usuario = new.id_usuario;
 end;
 
--- Criar valores derivados ou padrões.
--- 
--- Reduzir necessidade de intervenção manual.
+-- calcula a idade dos autores automaticamente
+create trigger if not exists calcular_idade_autor
+after insert on autores
+when new.data_nascimento is not null
+begin
+    update autores
+    set idade_autor = cast((julianday('now') - julianday(new.data_nascimento)) / 365 as integer)
+    where id_autor = new.id_autor;
+end;
+-- o cast serve para transformar o resultado em inteiro
+-- o julianday transforma a data em um número de dias
 
 -- calcula dias de empréstimo
 create trigger if not exists calcular_ias_emprestimo
@@ -189,10 +197,6 @@ begin
     set dias_emprestimo = julianday(new.data_devolucao_prevista) - julianday(new.data_emprestimo)
     where id_emprestimo = new.id_emprestimo;
 end;
--- o julianday transforma a data em um número de dias
-
--- Preencher data de cadastro de aluno quando não informada.
-
 
 -- define data de empréstimo padrão caso não informada - no caso,  data atual
 create trigger if not exists definir_data_emprestimo
