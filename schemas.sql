@@ -127,6 +127,41 @@ begin
 end;
 
 
+---- triggers: Auditoria ----
+create trigger if not exists resgistrar_log_usuario
+after insert on usuarios
+begin
+    insert into log_triggers (mensagem)
+    values('Um novo usuário foi inserido');
+end;
+
+create trigger if not exists resgistrar_editar_livro
+after update on livros
+begin
+    insert into log_triggers (mensagem)
+    values('Um livro foi editado');
+end;
+
+create trigger if not exists resgistrar_excluir_livro
+after delete on livros
+begin
+    insert into log_triggers (mensagem)
+    values('Um livro foi excluido do catalogo');
+end;
+
+create trigger if not exists resgistrar_log_autor
+after insert on autores
+begin
+    insert into log_triggers (mensagem)
+    values('Um novo autor foi inserido');
+end;
+
+create trigger if not exists resgistrar_editar_autor
+after update on autores
+begin
+    insert into log_triggers (mensagem)
+    values('Um autor foi editado');
+end;
 
 ---- triggers: Geração Automática de Valores ----
 
