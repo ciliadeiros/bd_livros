@@ -43,7 +43,6 @@ def carregar_mensagens_trigger():
     conexao.commit()
     conexao.close()
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -94,7 +93,6 @@ def login():
             flash('Opa, você não tem cadastro ou inseriu dados incorretos. Entre na página de cadastro e se registre ou informe corretamente!', category='error')
             return render_template('login.html')  
 
-    # para requisições GET
     return render_template('login.html')
 
 @app.route('/logout', methods=["POST", "GET"])

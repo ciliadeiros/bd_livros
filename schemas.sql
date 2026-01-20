@@ -107,7 +107,7 @@ end;
 
 -- registra log quando dados do empréstimo são alterados:
 --> Obs.: Só começa a cadastrar os logs quando o usuário devolver o livro, já
--- quem não há como comparar enquanto data_devolucao_real for null
+-- que não há como comparar enquanto data_devolucao_real for null
 create trigger if not exists registrar_log_emprestimo_atualizado
 after update on emprestimos
 when (new.data_devolucao_real != old.data_devolucao_real or new.data_devolucao_prevista != old.data_devolucao_prevista
@@ -216,4 +216,17 @@ when new.status_emprestimo = 'atrasado' and old.status_emprestimo != 'atrasado'
 begin
     insert into log_triggers (mensagem)
     values ('Empréstimo atrasado!');
+end;
+
+---- triggers: Validação  ----
+
+create trigger email_obrigatorio
+before insert on usuarios
+for each row
+begin
+    select
+        case
+            when new.email is null or new.email = ''
+            then raise(abort, 'O email é obrigatório')
+        end;
 end;
