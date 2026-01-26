@@ -6,9 +6,10 @@ def obter_conexao():
         timeout=30,
         isolation_level=None
     )
+
+    conexao.text_factory = str
     conexao.execute("PRAGMA foreign_keys = ON")
     conexao.execute("PRAGMA journal_mode = WAL")
     conexao.execute("PRAGMA busy_timeout = 30000")
     conexao.row_factory = sqlite3.Row
     return conexao
-

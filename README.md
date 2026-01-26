@@ -7,3 +7,5 @@ Projeto que explora os **triggers*** (gatilhos) em **MySQL**, abranjendo diferen
 **Turma:** Informática para Internet 1M (3° ano)
 
 **Discentes:** Camila Thaís, Cecília Maria, Demilly Lohany e Filipe Silva.
+
+Comando: pip install -r requirements.txt

@@ -229,9 +229,9 @@ when
     or new.numero_telefone is null or new.numero_telefone = ''
 begin
     insert into log_triggers (mensagem)
-    values ('Não é permitido deixar campos obrigatórios do usuário vazios.');
+    values ('Preencha todos os campos.');
 
-    select raise(abort, 'bloqueado');
+    select raise(fail, 'Preencha todos os campos.');
 end;
 
 ---- Impede que o usuário cadastre um autor com campos vazios ----
@@ -244,9 +244,9 @@ when
     or new.biografia is null or new.biografia = ''
 begin
     insert into log_triggers (mensagem)
-    values ('Não é permitido deixar campos obrigatórios do autor vazios.');
+    values ('Preencha todos os campos.');
 
-    select raise(abort, 'bloqueado');
+    select raise(fail, 'Preencha todos os campos.');
 end;
 
 ---- Impede que o usuário cadastre uma editora com campos vazios ----
@@ -257,9 +257,9 @@ when
     or new.endereco_editora is null or new.endereco_editora = ''
 begin
     insert into log_triggers (mensagem)
-    values ('Não é permitido deixar campos obrigatórios da editora vazios.');
+    values ('Preencha todos os campos.');
 
-    select raise(abort, 'bloqueado');
+    select raise(fail, 'Preencha todos os campos.');
 end;
 
 ---- Impedir adição de mais de um livro com o mesmo ISBN ----
@@ -272,9 +272,9 @@ when exists (
 )
 begin
     insert into log_triggers (mensagem)
-    values ('Já existe um livro cadastrado com este ISBN.');
+    values ('Existe um livro cadastrado com este ISBN.');
 
-    select raise(abort, 'bloqueado');
+    select raise(fail, 'Existe um livro cadastrado com este ISBN.');
 end;
 
 ---- Impedir email repetido ----
@@ -287,9 +287,25 @@ when exists (
 )
 begin
     insert into log_triggers (mensagem)
-    values ('Já existe um usuário cadastrado com este email.');
+    values ('Existe um usuário cadastrado com este email.');
 
-    select raise(abort, 'bloqueado');
+    select raise(fail, 'Existe um usuário cadastrado com este email.');
 end;
 
+---- Impedir que o usuário registre um livro com info faltando ----
+CREATE TRIGGER IF NOT EXISTS validar_livro_campos
+BEFORE UPDATE ON livros
+WHEN
+    new.autor_id IS NULL
+    OR new.titulo IS NULL OR trim(new.titulo) = ''
+    OR new.isbn IS NULL OR trim(new.isbn) = ''
+    OR new.ano_publicacao IS NULL
+    OR new.genero_id IS NULL
+    OR new.editora_id IS NULL
+    OR new.quantidade_disponivel IS NULL
+BEGIN
+    INSERT INTO log_triggers (mensagem)
+    VALUES ('Preencha todos os campos.');
 
+    SELECT RAISE(fail, 'Preencha todos os campos.');
+END;

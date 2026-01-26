@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block titulo %}Cadastrar Livro{% endblock %}
 {% block conteudo %}
+
 {% with mensagens = get_flashed_messages(with_categories=true) %}
     {% if mensagens %}
         {% for categoria, mensagem in mensagens %}
@@ -8,30 +9,52 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
+
 <h1>📚 Cadastrar Livro</h1>
 
 <form method="POST" action="{{ url_for('criar_livro') }}">
-    <input type="hidden" name="autor_nao_existe" value="{{ '1' if autor_nao_existe else '0' }}">
-    <input type="hidden" name="autor_nome" value="{{ autor_nome or '' }}">
 
-    Título: <input type="text" name="titulo" value="{{ livro.titulo if livro else '' }}" required><br>
-    Autor: <input type="text" name="autor" value="{{ livro.autor if livro else autor_nome or '' }}" required><br>
-    ISBN: <input type="text" name="isbn" value="{{ livro.isbn if livro else '' }}"><br>
-    Ano publicado: <input type="number" name="ano_publicacao" value="{{ livro.ano_publicacao if livro else '' }}"><br>
-    Gênero: <input type="text" name="genero" value="{{ livro.genero if livro else '' }}"><br>
-    Editora: <input type="text" name="editora" value="{{ livro.editora if livro else '' }}"><br>
-    Quantidade disponível: <input type="number" name="quantidade_disponivel" value="{{ livro.quantidade_disponivel if livro else '' }}"><br>
-    Resumo: <input type="text" name="resumo" value="{{ livro.resumo if livro else '' }}"><br>
+    Título:
+    <input type="text" name="titulo" required><br>
 
-    {% if autor_nao_existe %}
-        <hr>
-        <h3>⚠️ Autor não encontrado. Cadastre abaixo:</h3>
-        Nacionalidade: <input type="text" name="nacionalidade"><br>
-        Data de nascimento: <input type="date" name="data_nascimento"><br>
-        Biografia: <input type="text" name="biografia"><br>
-    {% endif %}
+    Autor:
+    <select name="autor_id" required>
+        <option value="">Selecione</option>
+        {% for autor in autores %}
+            <option value="{{ autor.id_autor }}">{{ autor.nome_autor }}</option>
+        {% endfor %}
+    </select><br>
+
+    ISBN:
+    <input type="text" name="isbn" required><br>
+
+    Ano publicado:
+    <input type="number" name="ano_publicacao" required><br>
+
+    Gênero:
+    <select name="genero_id" required>
+        <option value="">Selecione</option>
+        {% for genero in generos %}
+            <option value="{{ genero.id_genero }}">{{ genero.nome_genero }}</option>
+        {% endfor %}
+    </select><br>
+
+    Editora:
+    <select name="editora_id" required>
+        <option value="">Selecione</option>
+        {% for editora in editoras %}
+            <option value="{{ editora.id_editora }}">{{ editora.nome_editora }}</option>
+        {% endfor %}
+    </select><br>
+
+    Quantidade disponível:
+    <input type="number" name="quantidade_disponivel" required><br>
+
+    Resumo:
+    <input type="text" name="resumo"><br>
 
     <button type="submit">Salvar</button>
     <a href="{{ url_for('livros') }}">Cancelar</a>
 </form>
+<p style="font-size: 12px;"><i>⚠️ Não é possível cadastrar um livro sem autor, gênero e editora cadastrados. Registre-os primeiro.</i></p>
 {% endblock %}
