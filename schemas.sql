@@ -165,7 +165,6 @@ end;
 
 ---- triggers: Geração Automática de Valores ----
 
-
 -- preenche a data de inscrção do usuário automaticamente
 create trigger if not exists preencher_data_inscricao
 after insert on usuarios
@@ -220,13 +219,77 @@ end;
 
 ---- triggers: Validação  ----
 
-create trigger email_obrigatorio
+---- Impede que o usuário se cadastre com campos vazios ----
+create trigger if not exists validar_usuario
 before insert on usuarios
-for each row
+when
+    new.nome_usuario is null or new.nome_usuario = ''
+    or new.senha_usuario is null or new.senha_usuario = ''
+    or new.email is null or new.email = ''
+    or new.numero_telefone is null or new.numero_telefone = ''
 begin
-    select
-        case
-            when new.email is null or new.email = ''
-            then raise(abort, 'O email é obrigatório')
-        end;
+    insert into log_triggers (mensagem)
+    values ('Não é permitido deixar campos obrigatórios do usuário vazios.');
+
+    select raise(abort, 'bloqueado');
 end;
+
+---- Impede que o usuário cadastre um autor com campos vazios ----
+create trigger if not exists validar_autor
+before insert on autores
+when
+    new.nome_autor is null or new.nome_autor = ''
+    or new.nacionalidade is null or new.nacionalidade = ''
+    or new.data_nascimento is null or new.data_nascimento = ''
+    or new.biografia is null or new.biografia = ''
+begin
+    insert into log_triggers (mensagem)
+    values ('Não é permitido deixar campos obrigatórios do autor vazios.');
+
+    select raise(abort, 'bloqueado');
+end;
+
+---- Impede que o usuário cadastre uma editora com campos vazios ----
+create trigger if not exists validar_editora
+before insert on editoras
+when
+    new.nome_editora is null or new.nome_editora = ''
+    or new.endereco_editora is null or new.endereco_editora = ''
+begin
+    insert into log_triggers (mensagem)
+    values ('Não é permitido deixar campos obrigatórios da editora vazios.');
+
+    select raise(abort, 'bloqueado');
+end;
+
+---- Impedir adição de mais de um livro com o mesmo ISBN ----
+create trigger if not exists validar_isbn_unico
+before insert on livros
+when exists (
+    select 1
+    from livros
+    where isbn = new.isbn
+)
+begin
+    insert into log_triggers (mensagem)
+    values ('Já existe um livro cadastrado com este ISBN.');
+
+    select raise(abort, 'bloqueado');
+end;
+
+---- Impedir email repetido ----
+create trigger if not exists validar_email
+before insert on usuarios
+when exists (
+    select 1
+    from usuarios
+    where email = new.email
+)
+begin
+    insert into log_triggers (mensagem)
+    values ('Já existe um usuário cadastrado com este email.');
+
+    select raise(abort, 'bloqueado');
+end;
+
+

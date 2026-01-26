@@ -30,18 +30,20 @@ def carregar_mensagens_trigger():
         SELECT id_log, mensagem
         FROM log_triggers
         WHERE lida = 0
-        ORDER BY data_execucao""").fetchall()
+        ORDER BY data_execucao
+    """).fetchall()
 
     for msg in mensagens:
-        flash(msg['mensagem'], category='success')
+        flash(msg['mensagem'], category='error')
 
     conexao.execute("""
         UPDATE log_triggers
         SET lida = 1
-        WHERE lida = 0""")
+        WHERE lida = 0
+    """)
 
-    conexao.commit()
     conexao.close()
+
 
 @app.route('/')
 def index():
@@ -55,24 +57,31 @@ def cadastro():
         senha = request.form['senha']
         numero_telefone = request.form['numero_telefone']
         data_inscricao = datetime.date.today()
-        
+
         conexao = obter_conexao()
-        sql = "SELECT * FROM usuarios WHERE email = ?"
-        resultado = conexao.execute(sql, (email,) ).fetchone()
-        
-        if not resultado:
-            novo_usuario = User(senha=senha, nome=nome, email=email, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
+
+        try:
+            novo_usuario = User(
+                senha=senha,
+                nome=nome,
+                email=email,
+                numero_telefone=numero_telefone,
+                data_inscricao=data_inscricao
+            )
             novo_usuario.add_usuario()
 
-            # login do usuário
             user = User(senha=senha, nome=nome, email=email, numero_telefone=numero_telefone, data_inscricao=data_inscricao)
             user.id = email
             login_user(user)
 
+            conexao.commit()
             return redirect(url_for('index'))
 
-        else:
-            flash('E-mail já cadastrado. Tente outro.', category='error')
+        except sqlite3.IntegrityError:
+            conexao.rollback()
+            return redirect(url_for('cadastro'))
+
+        finally:
             conexao.close()
 
     return render_template('cadastro.html')
@@ -171,6 +180,9 @@ def remover_genero(id):
 
     return redirect(url_for('generos'))
 
+from flask import flash, redirect, request, url_for
+import sqlite3
+
 @app.route('/registrar_autor', methods=["GET", "POST"])
 @login_required
 def registrar_autor():
@@ -181,10 +193,16 @@ def registrar_autor():
         biografia = request.form['biografia']
     
         conexao = obter_conexao()
-        sql = """INSERT INTO autores (nome_autor, nacionalidade, data_nascimento, biografia)
-                 VALUES (?,?,?,?)"""
-        conexao.execute(sql, (nome_au, nacionalidade, data_nascimento, biografia))
-        conexao.commit()
+        sql = """INSERT INTO autores (nome_autor, nacionalidade, data_nascimento, biografia) VALUES (?,?,?,?)"""
+
+        try:
+            conexao.execute(sql, (nome_au, nacionalidade, data_nascimento, biografia))
+            conexao.commit()
+        except sqlite3.IntegrityError as e:
+            conexao.close()
+            flash(str(e), "erro")
+            return redirect(request.referrer)
+
         conexao.close() 
         return redirect(url_for('autores'))
 
@@ -270,71 +288,80 @@ def criar_livro():
     conexao = obter_conexao()
 
     if request.method == "POST":
-        titulo = request.form['titulo']
-        autor = request.form['autor']
-        isbn = request.form['isbn']
-        ano_publicacao = request.form['ano_publicacao']
-        genero = request.form['genero']
-        editora = request.form['editora']
-        quantidade_disponivel = request.form['quantidade_disponivel']
-        resumo = request.form['resumo']
+        try:
+            titulo = request.form['titulo']
+            autor = request.form['autor']
+            isbn = request.form['isbn']
+            ano_publicacao = request.form['ano_publicacao']
+            genero = request.form['genero']
+            editora = request.form['editora']
+            quantidade_disponivel = request.form['quantidade_disponivel']
+            resumo = request.form['resumo']
 
-        # AUTOR
-        autor_resultado = conexao.execute(
-            "SELECT id_autor FROM autores WHERE nome_autor = ?", (autor,)
-        ).fetchone()
-
-
-        if autor_resultado is None and 'nacionalidade' not in request.form:
-            conexao.close()
-            return render_template('criar_livro.html',livro={'titulo': titulo, 'isbn': isbn, 'ano_publicacao': ano_publicacao,'genero': genero, 'editora': editora,'quantidade_disponivel': quantidade_disponivel, 'resumo': resumo,'autor': autor},autor_nao_existe=True, autor_nome=autor)
-
-        if autor_resultado is None:
-            conexao.execute(
-                "INSERT INTO autores (nome_autor, nacionalidade, data_nascimento, biografia) VALUES (?, ?, ?, ?)",
-                (autor, request.form['nacionalidade'], request.form['data_nascimento'], request.form['biografia'])
-            )
-            conexao.commit()
             autor_resultado = conexao.execute(
                 "SELECT id_autor FROM autores WHERE nome_autor = ?", (autor,)
             ).fetchone()
 
-        autor_id = autor_resultado['id_autor']
+            if autor_resultado is None and 'nacionalidade' not in request.form:
+                conexao.close()
+                return render_template('criar_livro.html',
+                    livro={'titulo': titulo, 'isbn': isbn, 'ano_publicacao': ano_publicacao,
+                           'genero': genero, 'editora': editora,
+                           'quantidade_disponivel': quantidade_disponivel,
+                           'resumo': resumo, 'autor': autor},
+                    autor_nao_existe=True, autor_nome=autor)
 
-        # GÊNERO
-        genero_resultado = conexao.execute(
-            "SELECT id_genero FROM generos WHERE nome_genero = ?", (genero,)
-        ).fetchone()
-        if genero_resultado is None:
-            conexao.execute("INSERT INTO generos (nome_genero) VALUES (?)", (genero,))
-            conexao.commit()
+            if autor_resultado is None:
+                conexao.execute(
+                    "INSERT INTO autores (nome_autor, nacionalidade, data_nascimento, biografia) VALUES (?, ?, ?, ?)",
+                    (autor, request.form['nacionalidade'], request.form['data_nascimento'], request.form['biografia'])
+                )
+
+            autor_id = conexao.execute(
+                "SELECT id_autor FROM autores WHERE nome_autor = ?", (autor,)
+            ).fetchone()['id_autor']
+
             genero_resultado = conexao.execute(
                 "SELECT id_genero FROM generos WHERE nome_genero = ?", (genero,)
             ).fetchone()
-        genero_id = genero_resultado['id_genero']
 
-        # EDITORA
-        editora_resultado = conexao.execute(
-            "SELECT id_editora FROM editoras WHERE nome_editora = ?", (editora,)
-        ).fetchone()
-        if editora_resultado is None:
-            conexao.execute("INSERT INTO editoras (nome_editora) VALUES (?)", (editora,))
-            conexao.commit()
+            if genero_resultado is None:
+                conexao.execute("INSERT INTO generos (nome_genero) VALUES (?)", (genero,))
+
+            genero_id = conexao.execute(
+                "SELECT id_genero FROM generos WHERE nome_genero = ?", (genero,)
+            ).fetchone()['id_genero']
+
             editora_resultado = conexao.execute(
                 "SELECT id_editora FROM editoras WHERE nome_editora = ?", (editora,)
             ).fetchone()
-        editora_id = editora_resultado['id_editora']
 
-        conexao.execute("""
-            INSERT INTO livros (titulo, autor_id, isbn, ano_publicacao, genero_id, editora_id, quantidade_disponivel, resumo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (titulo, autor_id, isbn, ano_publicacao, genero_id, editora_id, quantidade_disponivel, resumo))
-        conexao.commit()
-        conexao.close()
-        return redirect(url_for("livros"))
+            if editora_resultado is None:
+                conexao.execute("INSERT INTO editoras (nome_editora) VALUES (?)", (editora,))
+
+            editora_id = conexao.execute(
+                "SELECT id_editora FROM editoras WHERE nome_editora = ?", (editora,)
+            ).fetchone()['id_editora']
+
+            conexao.execute("""
+                INSERT INTO livros (titulo, autor_id, isbn, ano_publicacao, genero_id, editora_id, quantidade_disponivel, resumo)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (titulo, autor_id, isbn, ano_publicacao, genero_id, editora_id, quantidade_disponivel, resumo))
+
+            conexao.commit()
+            return redirect(url_for("livros"))
+
+        except sqlite3.IntegrityError as e:
+            conexao.rollback()
+            flash(str(e), "error")
+            return redirect(url_for("criar_livro"))
+
+        finally:
+            conexao.close()
 
     conexao.close()
     return render_template('criar_livro.html', livro=None)
+
 
 @app.route('/editar_livro/<id>', methods=["GET", "POST"])
 @login_required
@@ -428,11 +455,17 @@ def registrar_editora():
     if request.method == "POST":
         nome_edi = request.form['nome']
         endereco = request.form['endereco']
-    
         conexao = obter_conexao()
         sql = """INSERT INTO editoras (nome_editora, endereco_editora) VALUES (?,?)"""
-        conexao.execute(sql, (nome_edi, endereco))
-        conexao.commit()
+
+        try:
+            conexao.execute(sql, (nome_edi, endereco))
+            conexao.commit()
+        except sqlite3.IntegrityError as e:
+            conexao.close()
+            flash(str(e), "error")
+            return redirect(request.referrer)
+
         conexao.close() 
         return redirect(url_for('editoras'))
 
@@ -591,8 +624,6 @@ def editar_emprestimos(id_emprestimo):
     conexao.close()
     
     return render_template('editar_emprestimos.html',emprestimo=emprestimo,livros=livros)
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

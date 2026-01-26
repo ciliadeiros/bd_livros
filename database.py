@@ -1,9 +1,14 @@
 import sqlite3
 
 def obter_conexao():
-    ''' Cria uma conexão com o arquivo de banco de dados banco.db.
-        Se o arquivo não existir, ele será criado automaticamente. '''
-    conexao = sqlite3.connect('livros.db')
+    conexao = sqlite3.connect(
+        'livros.db',
+        timeout=30,
+        isolation_level=None
+    )
     conexao.execute("PRAGMA foreign_keys = ON")
+    conexao.execute("PRAGMA journal_mode = WAL")
+    conexao.execute("PRAGMA busy_timeout = 30000")
     conexao.row_factory = sqlite3.Row
     return conexao
+
