@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS emprestimos (
     data_devolucao_prevista DATE,
     data_devolucao_real DATE,
     dias_emprestimo INTEGER, -- coloquei aqui pra ser calculado automaticamente e faciltar a vida
+    dias_atraso INTEGER, -- mesma lógica do de cima
     status_emprestimo TEXT CHECK(status_emprestimo IN ('pendente', 'devolvido', 'atrasado')),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario),
     FOREIGN KEY (livro_id) REFERENCES livros(id_livro) ON DELETE CASCADE
@@ -193,19 +194,29 @@ after insert on emprestimos
 when new.data_devolucao_prevista is not null
 begin
     update emprestimos
-    set dias_emprestimo = julianday(new.data_devolucao_prevista) - julianday(new.data_emprestimo)
+    set dias_emprestimo = cast(julianday(new.data_devolucao_prevista) - julianday(new.data_emprestimo) as integer)
     where id_emprestimo = new.id_emprestimo;
 end;
 
--- define data de empréstimo padrão caso não informada - no caso,  data atual
-create trigger if not exists definir_data_emprestimo
-after insert on emprestimos
-when new.data_emprestimo is null
+-- calcula a data de atraso de um empréstimo 
+create trigger if not exists calcular_dias_atraso
+after update on emprestimos
+when new.data_devolucao_prevista is not null and new.data_devolucao_real is not null and new.data_devolucao_real > new.data_devolucao_prevista
 begin
     update emprestimos
-    set data_emprestimo = date('now')
+    set dias_atraso = cast(julianday(new.data_devolucao_real) - julianday(new.data_devolucao_prevista) as integer)
     where id_emprestimo = new.id_emprestimo;
 end;
+
+-- -- define data de empréstimo padrão caso não informada - no caso,  data atual
+-- create trigger if not exists definir_data_emprestimo
+-- after insert on emprestimos
+-- when new.data_emprestimo is null
+-- begin
+--     update emprestimos
+--     set data_emprestimo = date('now')
+--     where id_emprestimo = new.id_emprestimo;
+-- end;
 
 
 -- Avisa sobre emprestimos atrasados
